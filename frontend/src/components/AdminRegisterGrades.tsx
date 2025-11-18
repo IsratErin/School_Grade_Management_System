@@ -183,7 +183,7 @@ export default function AdminRegisterGrades({
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
-          className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-100"
+          className="flex items-center gap-1 border bg-pink-400 text-white px-3 py-1 rounded-md mb-2 cursor-pointer hover:bg-pink-500"
           onClick={onBack}
         >
           <span className="text-sm font-bold ">← {adminName}</span>
@@ -196,7 +196,7 @@ export default function AdminRegisterGrades({
           {years.map((y) => (
             <button
               key={y}
-              className={`px-4 py-2 rounded border border-pink-400  transition-colors ${
+              className={`px-4 py-2 rounded border border-pink-400 cursor-pointer  transition-colors ${
                 selectedYear === y
                   ? 'bg-pink-400 text-white font-semibold'
                   : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'
@@ -208,7 +208,7 @@ export default function AdminRegisterGrades({
           ))}
         </div>
         <select
-          className="border border-gray-300 px-3 py-1 rounded-md"
+          className="border border-pink-400 bg-pink-400 text-white font-semibold px-3 py-1 rounded-md cursor-pointer"
           value={selectedSubject}
           onChange={(e) => setSelectedSubject(e.target.value)}
         >

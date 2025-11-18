@@ -79,7 +79,7 @@ export default function StudentGrades({
     selectedSubject === 'Engelska 5' || selectedSubject === 'Engelska 6';
 
   return (
-    <div className="p-6 font-sans max-w-4xl mx-auto">
+    <div className="p-20 font-sans max-w-4xl mx-auto bg-pink-200 min-h-screen">
       <div className="flex justify-between items-start">
         <h1 className="text-4xl font-bold">Grades</h1>
         <div className="flex flex-col items-end">
@@ -87,17 +87,19 @@ export default function StudentGrades({
             className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 hover:text-white cursor-pointer"
             onClick={onLogout}
           >
-            <span className="text-sm  font-semibold rounded-md">→ {studentName}</span>
+            <span className="text-sm  font-semibold rounded-md px-2 py-1">
+              → {studentName}
+            </span>
           </button>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <select
               className="border border-pink-400 bg-pink-400 text-white font-semibold px-3 py-1 rounded-md"
-              value={isEnglishDropdown ? 'English' : selectedSubject} 
+              value={isEnglishDropdown ? 'English' : selectedSubject}
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === 'English') {
-                  setSelectedSubject('Engelska 5')
+                  setSelectedSubject('Engelska 5');
                 } else {
                   setSelectedSubject(value);
                 }

@@ -80,5 +80,5 @@ export default function App() {
     }
   };
 
-  return <div className="min-h-screen bg-white">{renderPage()}</div>;
+  return <div className="min-h-screen bg-pink-50">{renderPage()}</div>;
 }

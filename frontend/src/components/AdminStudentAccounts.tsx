@@ -34,7 +34,7 @@ const demoStudents: Student[] = [
     personnr: '080527-1287',
     tel: '0709283746',
     adress: ' Västra Vägen 23 252 20 Helsingborg',
-    year: 2,
+    year: 1,
   },
   {
     name: 'Erik Sandberg',
@@ -60,6 +60,14 @@ const demoStudents: Student[] = [
     adress: 'exempelvägen 5 252 21 Helsingborg',
     year: 3,
   },
+  {
+    name: 'Anna Karlsson',
+    email: 'annaKarlsson08@sundgarden.se',
+    personnr: '081215-1234',
+    tel: '0723456790',
+    adress: 'exempelvägen 10 252 22 Helsingborg',
+    year: 2,
+  }
 ];
 
 interface AdminStudentAccountsProps {
@@ -83,10 +91,12 @@ export default function AdminStudentAccounts({
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
-          className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-gray-100 cursor-pointer"
+          className="flex items-center gap-1  bg-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 cursor-pointer"
           onClick={onBack}
         >
-          <span className="text-sm border-pink-400 rounded px-2 py-1 text-pink-400">← {adminName}</span>
+          <span className="text-sm rounded px-2 py-1 text-white font-bold">
+            ← {adminName}
+          </span>
         </button>
       </div>
 
@@ -167,11 +177,10 @@ export default function AdminStudentAccounts({
         </table>
       </div>
 
-      
       {hoverStudent && (
         <div
           className="absolute right-6 bottom-1/2 transform -translate-y-1/2 bg-yellow-100 p-4 border border-yellow-400 shadow-xl rounded w-80 z-10"
-          style={{ right: '19%', bottom: '50%', transform: 'translateY(200%)' }} 
+          style={{ right: '19%', bottom: '50%', transform: 'translateY(200%)' }}
         >
           <p className="font-bold mb-2">{hoverStudent.name},</p>
           <p className="text-sm">
