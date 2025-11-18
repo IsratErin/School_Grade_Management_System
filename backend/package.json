@@ -7,11 +7,11 @@
     "transform": {}
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon --exec node --loader ts-node/esm index.ts"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +35,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "firebase-admin": "^13.6.0",
     "zod": "^4.1.12"
   }
 }

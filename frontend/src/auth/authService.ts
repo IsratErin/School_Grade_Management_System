@@ -54,6 +54,24 @@ const signInUser = async (userCredential: userCredential) => {
   }
 };
 
+// retrieve idToken of the current user
+const getIdToken = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      //throw new Error("No user is currently signed in.");
+      console.log("No user is signed in");
+      return;
+    }
+    const idToken = await currentUser.getIdToken();
+    return idToken;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Error retrieving id token:", error.message);
+    }
+  }
+};
+
 // sign out the current user
 const signOutUser = async () => {
   try {
@@ -64,4 +82,4 @@ const signOutUser = async () => {
     }
   }
 };
-export { createUser, signInUser, signOutUser };
+export { createUser, signInUser, signOutUser, getIdToken };
