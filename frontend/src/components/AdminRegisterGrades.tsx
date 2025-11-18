@@ -5,90 +5,159 @@ const subjects = ['Filosofi 1', 'Engelska 5', 'Matematik 1b', 'Svenska 1'];
 
 const demoGrades = [
   {
-    student: 'Anna Bergström',
+    student: 'Kunnikar Boonbunlu',
     grade: 'A',
     date: '2025-11-12',
     year: 1,
     subject: 'Filosofi 1',
   },
   {
-    student: 'Johan Lindgren',
-    grade: 'B',
-    date: '2025-11-12',
-    year: 1,
-    subject: 'Filosofi 1',
-  },
-  {
-    student: 'Maria Ekholm',
+    student: 'Israt Jahan',
     grade: 'A',
     date: '2025-11-12',
     year: 1,
-    subject: 'Filosofi 1',
+    subject: 'Matematik 1b',
+  },
+  {
+    student: 'Snana-Maya Blomdahl',
+    grade: 'A',
+    date: '2025-11-12',
+    year: 1,
+    subject: 'Engelska 5',
   },
   {
     student: 'Erik Sandberg',
     grade: 'C',
     date: '2025-11-12',
-    year: 1,
-    subject: 'Filosofi 1',
+    year: 3,
+    subject: 'Engelska 5',
   },
   {
     student: 'Sofia Henningsson',
     grade: 'B',
     date: '2025-11-12',
-    year: 1,
-    subject: 'Filosofi 1',
+    year: 2,
+    subject: 'Matematik 1b',
   },
   {
     student: 'Daniel Norberg',
     grade: 'C',
     date: '2025-11-12',
-    year: 1,
-    subject: 'Filosofi 1',
+    year: 3,
+    subject: 'Matematik 1b',
   },
   {
     student: 'Klara Sjödin',
     grade: 'D',
     date: '2025-11-12',
-    year: 1,
-    subject: 'Filosofi 1',
+    year: 2,
+    subject: 'Svenska 1',
   },
   {
     student: 'Markus Lundvall',
-    grade: '',
-    date: '',
-    year: 1,
-    subject: 'Filosofi 1',
+    grade: 'C',
+    date: '2025-11-12',
+    year: 2,
+    subject: 'Svenska 1',
   },
   {
     student: 'Elin Westin',
-    grade: '',
-    date: '',
-    year: 1,
-    subject: 'Filosofi 1',
+    grade: 'A',
+    date: '2025-11-12',
+    year: 3,
+    subject: 'Matematik 1b',
   },
   {
     student: 'Tobias Holmgren',
-    grade: '',
-    date: '',
-    year: 1,
-    subject: 'Filosofi 1',
+    grade: 'C',
+    date: '2025-11-12',
+    year: 3,
+    subject: 'Engelska 5',
   },
   {
     student: 'Nora Viklund',
     grade: 'A',
     date: '2025-11-12',
     year: 1,
-    subject: 'Filosofi 1',
+    subject: 'Matematik 1b',
   },
   {
     student: 'Simon Axelsson',
     grade: 'B',
     date: '2025-11-12',
+    year: 2,
+    subject: 'Svenska 1',
+  },
+  {
+    student: 'Lina Bergström',
+    grade: 'D',
+    date: '2025-11-12',
     year: 1,
     subject: 'Filosofi 1',
   },
-  // Add more dummy data for other years/subjects if needed
+  {
+    student: 'Oskar Fredriksson',
+    grade: 'B',
+    date: ' 2025-11-12',
+    year: 2,
+    subject: 'Filosofi 1',
+  },
+  {
+    student: 'Emma Carlsson',
+    grade: 'A',
+    date: '2025-11-12',
+    year: 3,
+    subject: 'Svenska 1',
+  },
+  {
+    student: 'Axel Nyström',
+    grade: 'C',
+    date: '2025-11-12',
+    year: 1,
+    subject: 'Engelska 5',
+  },
+  {
+    student: 'Maja Holm',
+    grade: 'B',
+    date: '2025-11-12',
+    year: 2,
+    subject: 'Matematik 1b',
+  },
+  {
+    student: 'Felix Lund',
+    grade: 'D',
+    date: '2025-11-12',
+    year: 3,
+    subject: 'Filosofi 1',
+  },
+  {
+    student: 'Alva Svensson',
+    grade: 'A',
+    date: '2025-11-12',
+    year: 1,
+    subject: 'Svenska 1',
+  },
+  {
+    student: 'Leo Persson',
+    grade: 'B',
+    date: '',
+    year: 2,
+    subject: 'Engelska 5',
+  },
+  {
+    student: 'Wilma Jonsson',
+    grade: 'C',
+    date: '2025-11-12',
+    year: 3,
+    subject: 'Filosofi 1',
+  },
+  { 
+    student: 'Viktor Olsson',
+    grade: 'D',
+    date: '',
+    year: 1,
+    subject: 'Matematik 1b',
+  }
 ];
 
 interface AdminRegisterGradesProps {
@@ -110,14 +179,14 @@ export default function AdminRegisterGrades({
   );
 
   return (
-    <div className="p-6 font-sans max-w-4xl mx-auto">
+    <div className="p-20 font-sans max-w-4xl mx-auto bg-pink-200 min-h-screen">
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
-          className="flex items-center gap-1 border border-gray-300 px-3 py-1 rounded-md mb-2 hover:bg-gray-100"
+          className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-100"
           onClick={onBack}
         >
-          <span className="text-sm">← {adminName}</span>
+          <span className="text-sm font-bold ">← {adminName}</span>
         </button>
       </div>
 
@@ -127,10 +196,10 @@ export default function AdminRegisterGrades({
           {years.map((y) => (
             <button
               key={y}
-              className={`px-4 py-2 rounded border border-gray-300 transition-colors ${
+              className={`px-4 py-2 rounded border border-pink-400  transition-colors ${
                 selectedYear === y
-                  ? 'bg-blue-300 font-semibold'
-                  : 'bg-gray-100 hover:bg-gray-200'
+                  ? 'bg-pink-400 text-white font-semibold'
+                  : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'
               }`}
               onClick={() => setSelectedYear(y)}
             >

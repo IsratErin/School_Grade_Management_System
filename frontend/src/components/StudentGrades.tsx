@@ -84,21 +84,20 @@ export default function StudentGrades({
         <h1 className="text-4xl font-bold">Grades</h1>
         <div className="flex flex-col items-end">
           <button
-            className="flex items-center gap-1 border border-gray-300 px-3 py-1 rounded-md mb-2 hover:bg-gray-100"
+            className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 hover:text-white cursor-pointer"
             onClick={onLogout}
           >
-            <span className="text-sm">→ {studentName}</span>
+            <span className="text-sm  font-semibold rounded-md">→ {studentName}</span>
           </button>
 
           <div className="flex gap-2">
-            {/* Conditional dropdown based on wireframe examples (English vs Subject) */}
             <select
-              className="border border-gray-300 px-3 py-1 rounded-md"
-              value={isEnglishDropdown ? 'English' : selectedSubject} // Mocking the 'English' dropdown from one wireframe
+              className="border border-pink-400 bg-pink-400 text-white font-semibold px-3 py-1 rounded-md"
+              value={isEnglishDropdown ? 'English' : selectedSubject} 
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === 'English') {
-                  setSelectedSubject('Engelska 5'); // Default to a subject if 'English' is selected
+                  setSelectedSubject('Engelska 5')
                 } else {
                   setSelectedSubject(value);
                 }
@@ -125,13 +124,12 @@ export default function StudentGrades({
             key={y}
             onClick={() => {
               setSelectedYear(y);
-              // Reset subject filter when changing years to match wireframes
               setSelectedSubject('All Subjects');
             }}
             className={`px-4 py-2 rounded border border-gray-300 transition-colors ${
               selectedYear === y
-                ? 'bg-blue-300 font-semibold'
-                : 'bg-gray-100 hover:bg-gray-200'
+                ? 'bg-pink-400 font-semibold text-white cursor-pointer border-pink-700'
+                : 'bg-gray-100 hover:bg-pink-400 hover:text-white cursor-pointer'
             }`}
           >
             {y}

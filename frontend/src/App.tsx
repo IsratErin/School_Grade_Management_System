@@ -1,17 +1,26 @@
 import { useState } from 'react';
 import Login from './components/Login';
-import AdminLogin from './components/AdminLogin'; 
+import AdminLogin from './components/AdminLogin';
 import StudentGrades from './components/StudentGrades';
 import AdminDashboard from './components/AdminDashboard';
 import AdminRegisterGrades from './components/AdminRegisterGrades';
-import './index.css'
+import AdminStudentAccounts from './components/AdminStudentAccounts';
 
-type Page = 'student-login' | 'admin-login' | 'student-grades' | 'admin-dashboard';
+// Define App 'pages' for navigation
+type Page =
+  | 'student-login'
+  | 'admin-login'
+  | 'student-grades'
+  | 'admin-dashboard'
+  | 'admin-register-grades'
+  | 'admin-accounts';
 
-function App() {
+export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('student-login');
-
-  const studentName = 'Kunnikar';
+  // Dummy user for student view
+  const studentName = 'Kunnikar Boonbunlu';
+  // Dummy user for admin view
+  const adminName = 'Michiel vd Gragt';
 
   const navigateTo = (page: Page) => setCurrentPage(page);
 
@@ -71,11 +80,5 @@ function App() {
     }
   };
 
-  return (
-    <div className="app">
-      {renderPage()}
-    </div>
-  );
+  return <div className="min-h-screen bg-white">{renderPage()}</div>;
 }
-
-export default App;
