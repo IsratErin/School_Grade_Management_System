@@ -144,3 +144,4 @@ vite.config.ts.timestamp-*
 
 # Ignore Firebase Admin service account key
 firebaseServiceAccountKey.json
+generated/
