@@ -1,84 +1,48 @@
-import { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import AdminLogin from './components/AdminLogin';
-import StudentGrades from './components/StudentGrades';
-import AdminDashboard from './components/AdminDashboard';
-import AdminRegisterGrades from './components/AdminRegisterGrades';
-import AdminStudentAccounts from './components/AdminStudentAccounts';
-
-// Define App 'pages' for navigation
-type Page =
-  | 'student-login'
-  | 'admin-login'
-  | 'student-grades'
-  | 'admin-dashboard'
-  | 'admin-register-grades'
-  | 'admin-accounts';
+import StudentGrades from './pages/StudentGrades';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminRegisterGrades from './pages/AdminRegisterGrades';
+import AdminStudentAccounts from './pages/AdminStudentAccounts';
+import { useNavigate } from 'react-router-dom';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('student-login');
-  // Dummy user for student view
   const studentName = 'Kunnikar Boonbunlu';
-  // Dummy user for admin view
   const adminName = 'Michiel vd Gragt';
 
-  const navigateTo = (page: Page) => setCurrentPage(page);
+  // Wrapper for AdminStudentAccounts to provide onBack
+  function AdminAccountsWrapper() {
+    const navigate = useNavigate();
+    return (
+      <AdminStudentAccounts
+        adminName={adminName}
+        onBack={() => navigate('/admin-dashboard')}
+      />
+    );
+  }
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'student-login':
-        return (
-          <Login
-            onLogin={() => navigateTo('student-grades')}
-            onAdminLinkClick={() => navigateTo('admin-login')}
-          />
-        );
-      case 'admin-login':
-        return (
-          <AdminLogin
-            onLogin={() => navigateTo('admin-dashboard')}
-            onStudentLinkClick={() => navigateTo('student-login')}
-          />
-        );
-      case 'student-grades':
-        return (
-          <StudentGrades
-            studentName={studentName}
-            onLogout={() => navigateTo('student-login')}
-          />
-        );
-      case 'admin-dashboard':
-        return (
-          <AdminDashboard
-            adminName={adminName}
-            onRegisterGrades={() => navigateTo('admin-register-grades')}
-            onAdminAccounts={() => navigateTo('admin-accounts')}
-            onLogout={() => navigateTo('admin-login')}
-          />
-        );
-      case 'admin-register-grades':
-        return (
-          <AdminRegisterGrades
-            adminName={adminName}
-            onBack={() => navigateTo('admin-dashboard')}
-          />
-        );
-      case 'admin-accounts':
-        return (
-          <AdminStudentAccounts
-            adminName={adminName}
-            onBack={() => navigateTo('admin-dashboard')}
-          />
-        );
-      default:
-        return (
-          <Login
-            onLogin={() => navigateTo('student-grades')}
-            onAdminLinkClick={() => navigateTo('admin-login')}
-          />
-        );
-    }
-  };
-
-  return <div className="min-h-screen bg-pink-50">{renderPage()}</div>;
+  return (
+    <div className="min-h-screen bg-pink-50">
+      <Routes>
+        <Route path="/" element={<Navigate to="/student-login" replace />} />
+        <Route path="/student-login" element={<Login />} />
+        <Route
+          path="/student-grades"
+          element={<StudentGrades studentName={studentName} studentId={''} />}
+        />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route
+          path="/admin-dashboard"
+          element={<AdminDashboard adminName={adminName} />}
+        />
+        <Route
+          path="/admin-register-grades"
+          element={<AdminRegisterGrades adminName={adminName} />}
+        />
+        <Route path="/admin-accounts" element={<AdminAccountsWrapper />} />
+        <Route path="*" element={<Navigate to="/student-login" replace />} />
+      </Routes>
+    </div>
+  );
 }

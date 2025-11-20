@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 const years = ['Year 1', 'Year 2', 'Year 3', 'All'];
 const subjects = [
@@ -28,51 +30,57 @@ const subjects = [
   'Svenska 3',
 ];
 
-const demoGrades = [
-  { course: 'Engelska 5', grade: 'B', year: 1 },
-  { course: 'Filosofi 1', grade: 'A', year: 1 },
-  { course: 'Historia 1b', grade: 'C', year: 1 },
-  { course: 'Idrott och Hälsa 1', grade: 'A', year: 1 },
-  { course: 'Matematik 1b', grade: 'A', year: 1 },
-  { course: 'Naturkunskap 1b', grade: 'C', year: 1 },
-  { course: 'Samhällskunskap 1b', grade: 'B', year: 1 },
-  { course: 'Svenska 1', grade: 'A', year: 1 },
-  { course: 'Engelska 6', grade: 'A', year: 2 },
-  { course: 'Ledarskap och organisation', grade: '', year: 2 },
-  { course: 'Internationella Relationer', grade: '', year: 2 },
-  { course: 'Matematik 2b', grade: 'A', year: 2 },
-  { course: 'Samhällskunskap 2', grade: '', year: 2 },
-  { course: 'Svenska 2', grade: 'A', year: 2 },
-  { course: 'Filosofi 2', grade: '', year: 3 },
-  { course: 'Gymnasiearbete SA', grade: '', year: 3 },
-  { course: 'Kommunikation', grade: '', year: 3 },
-  { course: 'Psykologi 1', grade: '', year: 3 },
-  { course: 'Psykologi 2a', grade: '', year: 3 },
-  { course: 'Religionskunskap 1', grade: '', year: 3 },
-  { course: 'Religionskunskap 2', grade: '', year: 3 },
-  { course: 'Sociologi', grade: '', year: 3 },
-  { course: 'Svenska 3', grade: '', year: 3 },
-];
+interface Grade {
+  grade: string;
+  year: number;
+  subject: string;
+  level?: string;
+}
 
 interface StudentGradesProps {
   studentName: string;
-  onLogout: () => void;
+  studentId: string;
 }
 
 export default function StudentGrades({
   studentName,
-  onLogout,
+  studentId,
 }: StudentGradesProps) {
+  const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState('Year 1');
   const [selectedSubject, setSelectedSubject] = useState('All Subjects');
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const yearNumber =
     selectedYear === 'All' ? null : Number(selectedYear.split(' ')[1]);
 
-  const filteredGrades = demoGrades.filter(
+  useEffect(() => {
+    async function fetchGrades() {
+      if (!studentId) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await api.get(`/student/${studentId}/grades`);
+        setGrades(res.data || []);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError(`Failed to load grades. ${message}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchGrades();
+  }, [studentId]);
+
+  const filteredGrades = grades.filter(
     (g) =>
       (yearNumber === null || g.year === yearNumber) &&
-      (selectedSubject === 'All Subjects' || g.course === selectedSubject)
+      (selectedSubject === 'All Subjects' || g.subject === selectedSubject)
   );
 
   const isEnglishDropdown =
@@ -82,12 +90,13 @@ export default function StudentGrades({
     <div className="p-20 font-sans max-w-4xl mx-auto bg-pink-200 min-h-screen">
       <div className="flex justify-between items-start">
         <h1 className="text-4xl font-bold">Grades</h1>
+
         <div className="flex flex-col items-end">
           <button
             className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 hover:text-white cursor-pointer"
-            onClick={onLogout}
+            onClick={() => navigate('/student-login')}
           >
-            <span className="text-sm  font-semibold rounded-md px-2 py-1">
+            <span className="text-sm font-semibold rounded-md px-2 py-1">
               → {studentName}
             </span>
           </button>
@@ -98,11 +107,8 @@ export default function StudentGrades({
               value={isEnglishDropdown ? 'English' : selectedSubject}
               onChange={(e) => {
                 const value = e.target.value;
-                if (value === 'English') {
-                  setSelectedSubject('Engelska 5');
-                } else {
-                  setSelectedSubject(value);
-                }
+                if (value === 'English') setSelectedSubject('Engelska 5');
+                else setSelectedSubject(value);
               }}
             >
               <option value="All Subjects">Subject</option>
@@ -119,7 +125,7 @@ export default function StudentGrades({
         </div>
       </div>
 
-      {/* YEAR FILTER BUTTONS */}
+      {/* Year Filter */}
       <div className="mt-6 flex gap-2">
         {years.map((y) => (
           <button
@@ -139,49 +145,48 @@ export default function StudentGrades({
         ))}
       </div>
 
-      {/* GRADES TABLE */}
+      {/* Grades Table */}
       <div className="mt-6 border border-gray-300 rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">
-                Course
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                Grade
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                Year
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredGrades.length > 0 ? (
-              filteredGrades.map((g, i) => (
+        {loading ? (
+          <p className="p-4 text-center text-gray-700">Loading grades...</p>
+        ) : error ? (
+          <p className="p-4 text-center text-red-600">{error}</p>
+        ) : filteredGrades.length === 0 ? (
+          <p className="p-4 text-center text-gray-500">
+            No grades found for this filter.
+          </p>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">
+                  Course
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                  Grade
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                  Year
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredGrades.map((g, i) => (
                 <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {g.course}
+                    {g.subject}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {g.grade}
+                    {g.grade || '—'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {g.year}
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={3}
-                  className="px-6 py-4 text-center text-sm text-gray-500"
-                >
-                  No grades found for this filter.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

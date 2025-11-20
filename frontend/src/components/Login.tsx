@@ -1,9 +1,16 @@
-interface LoginProps {
-  onLogin: () => void;
-  onAdminLinkClick: () => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export default function Login({ onLogin, onAdminLinkClick }: LoginProps) {
+export default function Login() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate('/student-grades');
+  };
+
+  const handleAdminLinkClick = () => {
+    navigate('/admin-login');
+  };
+
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-6">
       <div className="bg-pink-100 p-10 rounded-lg shadow-xl w-full max-w-sm">
@@ -54,7 +61,7 @@ export default function Login({ onLogin, onAdminLinkClick }: LoginProps) {
             </a>
           </div>
           <button
-            onClick={onLogin}
+            onClick={handleLogin}
             className="w-full font-bold bg-pink-400 text-white py-2 px-4 rounded-md hover:bg-pink-500 focus:outline-pink-300 focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
           >
             Login
@@ -62,7 +69,7 @@ export default function Login({ onLogin, onAdminLinkClick }: LoginProps) {
         </div>
       </div>
       <button
-        onClick={onAdminLinkClick}
+        onClick={handleAdminLinkClick}
         className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"
       >
         Admin
