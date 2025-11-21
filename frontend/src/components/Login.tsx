@@ -1,27 +1,48 @@
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
+import { signInUser, createUser } from "../auth/authService";
 export default function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  interface UserCredintials {
+    email: string;
+    password: string;
+  }
+
+  const UserCredintials: UserCredintials = {
+    email: email,
+    password: password,
+  };
+  const handleRegister = async () => {
     if (!email || !password) {
-      alert('Please enter both email and password.');
+      alert("Please enter both email and password.");
       return;
     }
-    navigate('/student-grades'); 
+    await createUser(UserCredintials);
+    console.log("Creasting User with:", UserCredintials);
+  };
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+    console.log("Logging in with:", UserCredintials);
+    await signInUser(UserCredintials);
+    navigate("/student-grades");
   };
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-6">
       <div className="bg-pink-100 p-10 rounded-lg shadow-xl w-full max-w-sm">
-        <h2 className="text-3xl font-bold mb-8 text-center">👤 Login</h2>
+        <h2 className="text-3xl font-bold mb-8 text-center">
+          👤 Student Login
+        </h2>
 
         <div className="space-y-4">
-          
           <div>
             <label
               htmlFor="email"
@@ -80,12 +101,18 @@ export default function Login() {
           >
             Login
           </button>
+          <button
+            onClick={handleRegister}
+            className="w-full font-bold bg-gray-200 text-black py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Register
+          </button>
         </div>
       </div>
 
       {/* Admin Button (Navigate) */}
       <button
-        onClick={() => navigate('/admin-login')}
+        onClick={() => navigate("/admin-login")}
         className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"
       >
         Admin
