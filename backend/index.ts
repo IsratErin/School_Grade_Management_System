@@ -1,18 +1,24 @@
 import express from "express";
 import cors from "cors";
 import studentRoutes from "./src/routes/studentRoutes.js";
+import adminStudentsRoutes from "./src/routes/adminRoutes/students.js";
+import adminGradesRoutes from "./src/routes/adminRoutes/grades.js";
 import type { CorsOptions } from "cors";
+//import { PrismaClient } from "./src/generated/prisma-client/client.ts";
 
+//const prisma = new PrismaClient();
 const corsOptions: CorsOptions = {
   origin: ["http://localhost:5173"], //works for default react localhosting
 };
-const PORT = 3000;
+const PORT = 5001;
 const app = express();
 
 app.use(express.json());
 app.use(cors(corsOptions));
 
 app.use("/student", studentRoutes);
+app.use("/admin/students", adminStudentsRoutes);
+app.use("/admin/grades", adminGradesRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

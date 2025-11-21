@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const years = ['Year 1', 'Year 2', 'Year 3'];
 const subjects = ['Filosofi 1', 'Engelska 5', 'Matematik 1b', 'Svenska 1'];
@@ -98,7 +99,7 @@ const demoGrades = [
   {
     student: 'Oskar Fredriksson',
     grade: 'B',
-    date: ' 2025-11-12',
+    date: '2025-11-12',
     year: 2,
     subject: 'Filosofi 1',
   },
@@ -151,24 +152,24 @@ const demoGrades = [
     year: 3,
     subject: 'Filosofi 1',
   },
-  { 
+  {
     student: 'Viktor Olsson',
     grade: 'D',
     date: '',
     year: 1,
     subject: 'Matematik 1b',
-  }
+  },
 ];
 
 interface AdminRegisterGradesProps {
   adminName: string;
-  onBack: () => void;
 }
 
 export default function AdminRegisterGrades({
   adminName,
-  onBack,
 }: AdminRegisterGradesProps) {
+  const navigate = useNavigate();
+
   const [selectedYear, setSelectedYear] = useState('Year 1');
   const [selectedSubject, setSelectedSubject] = useState(subjects[0]);
 
@@ -184,9 +185,9 @@ export default function AdminRegisterGrades({
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
           className="flex items-center gap-1 border bg-pink-400 text-white px-3 py-1 rounded-md mb-2 cursor-pointer hover:bg-pink-500"
-          onClick={onBack}
+          onClick={() => navigate('/admin-dashboard')}
         >
-          <span className="text-sm font-bold ">← {adminName}</span>
+          <span className="text-sm font-bold">← {adminName}</span>
         </button>
       </div>
 
@@ -196,7 +197,7 @@ export default function AdminRegisterGrades({
           {years.map((y) => (
             <button
               key={y}
-              className={`px-4 py-2 rounded border border-pink-400 cursor-pointer  transition-colors ${
+              className={`px-4 py-2 rounded border border-pink-400 cursor-pointer transition-colors ${
                 selectedYear === y
                   ? 'bg-pink-400 text-white font-semibold'
                   : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'
@@ -245,10 +246,10 @@ export default function AdminRegisterGrades({
                   {g.student}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {g.grade}
+                  {g.grade || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {g.date}
+                  {g.date || '-'}
                 </td>
               </tr>
             ))}

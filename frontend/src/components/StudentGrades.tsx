@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const years = ['Year 1', 'Year 2', 'Year 3', 'All'];
 const subjects = [
@@ -56,15 +57,16 @@ const demoGrades = [
 
 interface StudentGradesProps {
   studentName: string;
-  onLogout: () => void;
 }
 
-export default function StudentGrades({
-  studentName,
-  onLogout,
-}: StudentGradesProps) {
+export default function StudentGrades({ studentName }: StudentGradesProps) {
+  const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState('Year 1');
   const [selectedSubject, setSelectedSubject] = useState('All Subjects');
+
+  const logout = () => {
+    navigate('/'); // Go back to login
+  };
 
   const yearNumber =
     selectedYear === 'All' ? null : Number(selectedYear.split(' ')[1]);
@@ -85,9 +87,9 @@ export default function StudentGrades({
         <div className="flex flex-col items-end">
           <button
             className="flex items-center gap-1 border border-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 hover:text-white cursor-pointer"
-            onClick={onLogout}
+            onClick={logout}
           >
-            <span className="text-sm  font-semibold rounded-md px-2 py-1">
+            <span className="text-sm font-semibold rounded-md px-2 py-1">
               → {studentName}
             </span>
           </button>
@@ -163,7 +165,7 @@ export default function StudentGrades({
                     {g.course}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {g.grade}
+                    {g.grade || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {g.year}
