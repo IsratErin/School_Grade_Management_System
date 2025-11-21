@@ -2,8 +2,8 @@ import axios from "axios";
 import { getIdToken } from "../auth/authService";
 
 const api = axios.create({
-  baseURL: "http://localhost:5001",
-  headers: { "Content-Type": "application/json" },
+  baseURL: "http://localhost:5001/",
+  //headers: { "Content-Type": "application/json" },
   withCredentials: false,
 });
 

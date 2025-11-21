@@ -4,6 +4,7 @@ import studentRoutes from "./src/routes/studentRoutes.js";
 import adminStudentsRoutes from "./src/routes/adminRoutes/students.js";
 import adminGradesRoutes from "./src/routes/adminRoutes/grades.js";
 import type { CorsOptions } from "cors";
+import verifyIdToken from "./middleware/authMiddleware.js";
 //import { PrismaClient } from "./src/generated/prisma-client/client.ts";
 
 //const prisma = new PrismaClient();
@@ -16,7 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
 
-app.use("/student", studentRoutes);
+app.use("/student", verifyIdToken, studentRoutes);
 app.use("/admin/students", adminStudentsRoutes);
 app.use("/admin/grades", adminGradesRoutes);
 
