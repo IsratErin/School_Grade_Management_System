@@ -90,4 +90,34 @@ router.put("/:gradeId", async (req, res) => {
   }
 });
 
+// 📌 GET all subjects + their grades grouped by year
+router.get("/overview", async (req, res) => {
+  try {
+    const subjects = await prisma.subject.findMany({
+      include: {
+        grades: {
+          select: { grade: true, year: true }
+        },
+      },
+    });
+
+    const formatted = subjects.map((sub) => ({
+      id: sub.id,
+      name: sub.name,
+      level: sub.level,
+      grades: sub.grades.reduce((acc, g) => {
+        if (!acc[g.year]) acc[g.year] = [];
+        acc[g.year].push(g.grade);
+        return acc;
+      }, {}),
+    }));
+
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    res.status(500).json({ error: error instanceof Error ? error.message : error });
+  }
+});
+
+
 export default router;
