@@ -78,6 +78,7 @@ const getIdToken = async () => {
 const signOutUser = async () => {
   try {
     await auth.signOut();
+    console.log("User signed out successfully.");
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error signing out user:", error.message);
