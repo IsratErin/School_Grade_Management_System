@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const years = ['Year 1', 'Year 2', 'Year 3'];
 
@@ -67,23 +68,21 @@ const demoStudents: Student[] = [
     tel: '0723456790',
     adress: 'exempelvägen 10 252 22 Helsingborg',
     year: 2,
-  }
+  },
 ];
 
 interface AdminStudentAccountsProps {
   adminName: string;
-  onBack: () => void;
 }
 
 export default function AdminStudentAccounts({
   adminName,
-  onBack,
 }: AdminStudentAccountsProps) {
+  const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState('Year 1');
   const [hoverStudent, setHoverStudent] = useState<Student | null>(null);
 
   const yearNumber = Number(selectedYear.split(' ')[1]);
-
   const filteredStudents = demoStudents.filter((s) => s.year === yearNumber);
 
   return (
@@ -91,8 +90,8 @@ export default function AdminStudentAccounts({
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
-          className="flex items-center gap-1  bg-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 cursor-pointer"
-          onClick={onBack}
+          className="flex items-center gap-1 bg-pink-400 px-3 py-1 rounded-md mb-2 hover:bg-pink-500 cursor-pointer"
+          onClick={() => navigate('/admin-dashboard')}
         >
           <span className="text-sm rounded px-2 py-1 text-white font-bold">
             ← {adminName}
@@ -205,7 +204,6 @@ export default function AdminStudentAccounts({
               {hoverStudent.adress}
             </span>
           </p>
-
           <div className="flex justify-start gap-4 mt-4">
             <button className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100">
               ✏ Edit
@@ -216,6 +214,7 @@ export default function AdminStudentAccounts({
           </div>
         </div>
       )}
+
       <div className="absolute top-20 right-100 bg-red-100 p-2 border border-red-300 rounded shadow-md text-xs text-center transform translate-x-1/2">
         Hover over a row and see pop up window
       </div>

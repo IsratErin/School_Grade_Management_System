@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import AdminLogin from './components/AdminLogin';
 import StudentGrades from './components/StudentGrades';
@@ -6,79 +6,55 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminRegisterGrades from './components/AdminRegisterGrades';
 import AdminStudentAccounts from './components/AdminStudentAccounts';
 
-// Define App 'pages' for navigation
-type Page =
-  | 'student-login'
-  | 'admin-login'
-  | 'student-grades'
-  | 'admin-dashboard'
-  | 'admin-register-grades'
-  | 'admin-accounts';
-
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('student-login');
-  // Dummy user for student view
+  // Dummy names (replace with real authentication later)
   const studentName = 'Kunnikar Boonbunlu';
-  // Dummy user for admin view
   const adminName = 'Michiel vd Gragt';
 
-  const navigateTo = (page: Page) => setCurrentPage(page);
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'student-login':
-        return (
-          <Login
-            onLogin={() => navigateTo('student-grades')}
-            onAdminLinkClick={() => navigateTo('admin-login')}
+  return (
+    <div className="min-h-screen bg-pink-50">
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login onLogin={function (): void {
+            throw new Error('Function not implemented.');
+          } } onAdminLinkClick={function (): void {
+            throw new Error('Function not implemented.');
+          } } />} />
+          <Route path="/admin-login" element={<AdminLogin onLogin={function (): void {
+            throw new Error('Function not implemented.');
+          } } onStudentLinkClick={function (): void {
+            throw new Error('Function not implemented.');
+          } } />} />
+          <Route
+            path="/student-grades"
+            element={<StudentGrades studentName={studentName} onLogout={function (): void {
+              throw new Error('Function not implemented.');
+            } } />}
           />
-        );
-      case 'admin-login':
-        return (
-          <AdminLogin
-            onLogin={() => navigateTo('admin-dashboard')}
-            onStudentLinkClick={() => navigateTo('student-login')}
+          <Route
+            path="/admin-dashboard"
+            element={<AdminDashboard adminName={adminName} onRegisterGrades={function (): void {
+              throw new Error('Function not implemented.');
+            } } onAdminAccounts={function (): void {
+              throw new Error('Function not implemented.');
+            } } onLogout={function (): void {
+              throw new Error('Function not implemented.');
+            } } />}
           />
-        );
-      case 'student-grades':
-        return (
-          <StudentGrades
-            studentName={studentName}
-            onLogout={() => navigateTo('student-login')}
+          <Route
+            path="/admin-register-grades"
+            element={<AdminRegisterGrades adminName={adminName} onBack={function (): void {
+              throw new Error('Function not implemented.');
+            } } />}
           />
-        );
-      case 'admin-dashboard':
-        return (
-          <AdminDashboard
-            adminName={adminName}
-            onRegisterGrades={() => navigateTo('admin-register-grades')}
-            onAdminAccounts={() => navigateTo('admin-accounts')}
-            onLogout={() => navigateTo('admin-login')}
+          <Route
+            path="/admin-accounts"
+            element={<AdminStudentAccounts adminName={adminName} onBack={function (): void {
+              throw new Error('Function not implemented.');
+            } } />}
           />
-        );
-      case 'admin-register-grades':
-        return (
-          <AdminRegisterGrades
-            adminName={adminName}
-            onBack={() => navigateTo('admin-dashboard')}
-          />
-        );
-      case 'admin-accounts':
-        return (
-          <AdminStudentAccounts
-            adminName={adminName}
-            onBack={() => navigateTo('admin-dashboard')}
-          />
-        );
-      default:
-        return (
-          <Login
-            onLogin={() => navigateTo('student-grades')}
-            onAdminLinkClick={() => navigateTo('admin-login')}
-          />
-        );
-    }
-  };
-
-  return <div className="min-h-screen bg-pink-50">{renderPage()}</div>;
+        </Routes>
+      </Router>
+    </div>
+  );
 }
