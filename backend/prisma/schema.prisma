@@ -26,9 +26,10 @@ enum GradeValue {
   id Int @id @default(autoincrement())
   firstName String
   lastName String
-  personNr Int @unique
+  personNr String @unique
+  email String @unique
   year Int?
-  phone Int?
+  phone String?
   adress String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,7 +41,7 @@ enum GradeValue {
   studentId Int
   student Student @relation(fields: [studentId], references: [id])
   grade GradeValue?
-  year Int
+  year Int?
   subjectId Int
   subject Subject @relation(fields: [subjectId], references: [id])
   createdAt DateTime @default(now())

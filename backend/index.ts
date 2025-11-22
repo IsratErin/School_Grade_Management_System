@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import studentRoutes from "./src/routes/studentRoutes.js";
+import studentRoute from "./src/routes/studentRoutes.js";
 import adminStudentsRoutes from "./src/routes/adminRoutes/students.js";
 import adminGradesRoutes from "./src/routes/adminRoutes/grades.js";
 import type { CorsOptions } from "cors";
@@ -16,7 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
 
-app.use("/student", studentRoutes);
+app.use("/student", studentRoute);
 app.use("/admin/students", adminStudentsRoutes);
 app.use("/admin/grades", adminGradesRoutes);
 

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Grade" ALTER COLUMN "year" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Student" ALTER COLUMN "phone" SET DATA TYPE TEXT;
