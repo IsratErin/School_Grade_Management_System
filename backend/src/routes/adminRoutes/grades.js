@@ -90,34 +90,45 @@ router.put("/:gradeId", async (req, res) => {
   }
 });
 
-// 📌 GET all subjects + their grades grouped by year
-router.get("/overview", async (req, res) => {
+//get all grades with student name and subject
+router.get('/all', async (req, res) => {
   try {
-    const subjects = await prisma.subject.findMany({
+    const grades = await prisma.grade.findMany({
       include: {
-        grades: {
-          select: { grade: true, year: true }
+        student: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        subject: {
+          select: {
+            name: true,
+            level: true,
+          },
         },
       },
     });
 
-    const formatted = subjects.map((sub) => ({
-      id: sub.id,
-      name: sub.name,
-      level: sub.level,
-      grades: sub.grades.reduce((acc, g) => {
-        if (!acc[g.year]) acc[g.year] = [];
-        acc[g.year].push(g.grade);
-        return acc;
-      }, {}),
+    // Map to frontend-friendly structure
+    const formatted = grades.map((g) => ({
+      firstName: g.student.firstName,
+      lastName: g.student.lastName,
+      grade: g.grade,
+      subject: g.subject.name,
+      level: g.subject.level,
+      year: g.year,
+      updatedAt: g.updatedAt,
     }));
-
 
     res.status(200).json(formatted);
   } catch (error) {
-    res.status(500).json({ error: error instanceof Error ? error.message : error });
+    res
+      .status(500)
+      .json({ error: error instanceof Error ? error.message : error });
+  } finally {
+    await prisma.$disconnect();
   }
 });
-
 
 export default router;

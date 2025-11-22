@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-interface SubjectOverview {
-  id: number;
-  name: string;
-  level: string;
-  grades: Record<number, string[]>; 
+interface StudentGrade {
+  firstName: string;
+  lastName: string;
+  grade: string;
+  subject: string;
+  level?: string;
+  year: number;
+  updatedAt: string;
 }
 
 interface AdminRegisterGradesProps {
@@ -15,85 +18,89 @@ interface AdminRegisterGradesProps {
 
 const years = ['All', 'Year 1', 'Year 2', 'Year 3'];
 
-export default function AdminRegisterGrades({ adminName }: AdminRegisterGradesProps) {
+export default function AdminRegisterGrades({
+  adminName,
+}: AdminRegisterGradesProps) {
   const navigate = useNavigate();
-  
-  const [subjects, setSubjects] = useState<SubjectOverview[]>([]);
+  const [grades, setGrades] = useState<StudentGrade[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedSubject, setSelectedSubject] = useState('All');
-  const [loading, setLoading] = useState(false);
 
-  // Fetch all subjects + grade overview
+  // Fetch all grades
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchGrades = async () => {
       setLoading(true);
       try {
-        const res = await axios.get<SubjectOverview[]>(
-          'http://localhost:5001/admin/grades/overview'
+        const res = await axios.get<StudentGrade[]>(
+          'http://localhost:5001/admin/grades/all' // backend must return firstName, lastName, grade, subject, level?, year, updatedAt
         );
-        setSubjects(res.data);
+        setGrades(res.data);
       } catch (err) {
-        console.error('Failed to fetch subjects overview', err);
+        console.error('Failed to fetch grades', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchGrades();
   }, []);
 
-  // Filter logic
-  const filteredSubjects = subjects.filter((s) => {
-    if (selectedSubject !== 'All' && s.name !== selectedSubject) return false;
-    return true;
+  // Year & Subject filters
+  const yearNumber =
+    selectedYear === 'All' ? null : Number(selectedYear.split(' ')[1]);
+  const filteredGrades = grades.filter((g) => {
+    const matchYear = yearNumber === null || g.year === yearNumber;
+    const matchSubject =
+      selectedSubject === 'All' || g.subject === selectedSubject;
+    return matchYear && matchSubject;
   });
 
-  const yearFilterNumber =
-    selectedYear === 'All' ? null : Number(selectedYear.split(' ')[1]);
+  // Extract unique subjects for dropdown
+  const subjects = Array.from(new Set(grades.map((g) => g.subject)));
 
   return (
     <div className="p-10 bg-pink-200 min-h-screen font-sans">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold mb-6">📚 Grades Overview</h1>
-
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">📚 Student Grades Overview</h1>
         <button
-          className="flex items-center gap-1 border bg-pink-400 text-white px-3 py-1 rounded-md mb-2 cursor-pointer hover:bg-pink-500"
+          className="bg-pink-400 text-white px-3 py-1 rounded"
           onClick={() => navigate('/admin-dashboard')}
         >
-          <span className="text-sm font-bold">← {adminName}</span>
+          ← {adminName}
         </button>
       </div>
-      {/* FILTER BAR */}
+
+      {/* FILTERS */}
       <div className="flex justify-between gap-4 mb-6">
         <div className="flex gap-2">
-        {years.map((y) => (
-          <button
-            key={y}
-            className={`px-4 py-2 rounded border font-semibold ${
-              selectedYear === y
-                ? 'bg-pink-500 text-white'
-                : 'bg-white hover:bg-gray-100'
-            }`}
-            onClick={() => setSelectedYear(y)}
-          >
-            {y}
-          </button>
-        ))}
+          {years.map((y) => (
+            <button
+              key={y}
+              className={`px-4 py-2 rounded border font-semibold ${
+                selectedYear === y
+                  ? 'bg-pink-500 text-white'
+                  : 'bg-white hover:bg-gray-100'
+              }`}
+              onClick={() => setSelectedYear(y)}
+            >
+              {y}
+            </button>
+          ))}
         </div>
         <div>
-        {/* SUBJECT FILTER */}
-        <select
-          className="px-4 py-2 rounded border bg-white"
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-        >
-          <option value="All">All Subjects</option>
-          {subjects.map((s) => (
-            <option key={s.id} value={s.name}>
-              {s.name} ({s.level})
-            </option>
-          ))}
-        </select>
+          <select
+            className="px-4 py-2 rounded border bg-white"
+            value={selectedSubject}
+            onChange={(e) => setSelectedSubject(e.target.value)}
+          >
+            <option value="All">All Subjects</option>
+            {subjects.map((subj) => (
+              <option key={subj} value={subj}>
+                {subj}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -104,32 +111,34 @@ export default function AdminRegisterGrades({ adminName }: AdminRegisterGradesPr
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100 font-semibold">
               <tr>
-                <th className="px-6 py-3 text-left">Course</th>
-                <th className="px-6 py-3 text-left">Level</th>
-                <th className="px-6 py-3 text-left">Grades</th>
+                <th className="px-6 py-3 text-left">Student Name</th>
+                <th className="px-6 py-3 text-left">Grade</th>
+                <th className="px-6 py-3 text-left">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredSubjects.map((s) => {
-                const gradesForYear =
-                  yearFilterNumber === null
-                    ? Object.values(s.grades).flat()
-                    : s.grades[yearFilterNumber] || [];
-
-                return (
-                  <tr key={s.id} className="hover:bg-pink-50">
-                    <td className="px-6 py-3">{s.name}</td>
-                    <td className="px-6 py-3">{s.level}</td>
+              {filteredGrades.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={3}
+                    className="text-center py-4 text-gray-500 italic"
+                  >
+                    No grades found for this filter.
+                  </td>
+                </tr>
+              ) : (
+                filteredGrades.map((g, i) => (
+                  <tr key={i} className="hover:bg-pink-50">
                     <td className="px-6 py-3">
-                      {gradesForYear.length > 0 ? (
-                        gradesForYear.join(', ')
-                      ) : (
-                        <span className="text-gray-400 italic">No grades</span>
-                      )}
+                      {g.firstName} {g.lastName}
+                    </td>
+                    <td className="px-6 py-3">{g.grade}</td>
+                    <td className="px-6 py-3">
+                      {new Date(g.updatedAt).toLocaleDateString()}
                     </td>
                   </tr>
-                );
-              })}
+                ))
+              )}
             </tbody>
           </table>
         </div>
