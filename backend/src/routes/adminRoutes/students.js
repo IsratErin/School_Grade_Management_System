@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   studentSchema,
   updateStudentSchema,
+  personNrSchema,
 } from "../../validators/valdation.js";
 
 const prisma = new PrismaClient();
@@ -36,8 +37,8 @@ router.get("/", async (req, res) => {
 //update student by personnummer
 router.put("/:personNr", async (req, res) => {
   try {
-    const personNr = parseInt(req.params.personNr);
-    const validatedPersonNr = z.number().safeParse(personNr);
+    const personNr = req.params.personNr;
+    const validatedPersonNr = personNrSchema.safeParse(personNr);
     if (!validatedPersonNr.success) {
       return res.status(422).json({
         error: validatedPersonNr.error,
