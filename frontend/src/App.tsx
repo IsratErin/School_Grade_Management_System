@@ -1,4 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from 'react-router-dom';
+
+import type { ComponentType } from 'react';
 import Login from './components/Login';
 import AdminLogin from './components/AdminLogin';
 import StudentGrades from './components/StudentGrades';
@@ -6,55 +13,114 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminRegisterGrades from './components/AdminRegisterGrades';
 import AdminStudentAccounts from './components/AdminStudentAccounts';
 
-export default function App() {
-  // Dummy names (replace with real authentication later)
-  const studentName = 'Kunnikar Boonbunlu';
+const LoginComponent = Login as ComponentType<{
+  onLogin: () => void;
+  onAdminLinkClick: () => void;
+}>;
+const AdminLoginComponent = AdminLogin as ComponentType<{
+  onLogin: () => void;
+  onStudentLinkClick: () => void;
+}>;
+const StudentGradesComponent = StudentGrades as ComponentType<{
+  studentId: number;
+  onLogout: () => void;
+}>;
+const AdminDashboardComponent = AdminDashboard as ComponentType<{
+  adminName: string;
+  onRegisterGrades: () => void;
+  onAdminAccounts: () => void;
+  onLogout: () => void;
+}>;
+const AdminRegisterGradesComponent = AdminRegisterGrades as ComponentType<{
+  adminName: string;
+  onBack: () => void;
+}>;
+const AdminStudentAccountsComponent = AdminStudentAccounts as ComponentType<{
+  adminName: string;
+  onBack: () => void;
+}>;
+
+export default function AppWrapper() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
+
+function App() {
+  const navigate = useNavigate();
+
+  const studentId = 1;
   const adminName = 'Michiel vd Gragt';
 
+  const handleStudentLogin = () => {
+    navigate('/student-grades');
+  };
+
+  const handleAdminLogin = () => {
+    navigate('/admin-dashboard');
+  };
+
+  const handleLogout = () => {
+    navigate('/');
+  };
+
   return (
-    <div className="min-h-screen bg-pink-50">
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login onLogin={function (): void {
-            throw new Error('Function not implemented.');
-          } } onAdminLinkClick={function (): void {
-            throw new Error('Function not implemented.');
-          } } />} />
-          <Route path="/admin-login" element={<AdminLogin onLogin={function (): void {
-            throw new Error('Function not implemented.');
-          } } onStudentLinkClick={function (): void {
-            throw new Error('Function not implemented.');
-          } } />} />
-          <Route
-            path="/student-grades"
-            element={<StudentGrades studentName={studentName} onLogout={function (): void {
-              throw new Error('Function not implemented.');
-            } } />}
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <LoginComponent
+            onLogin={handleStudentLogin}
+            onAdminLinkClick={() => navigate('/admin-login')}
           />
-          <Route
-            path="/admin-dashboard"
-            element={<AdminDashboard adminName={adminName} onRegisterGrades={function (): void {
-              throw new Error('Function not implemented.');
-            } } onAdminAccounts={function (): void {
-              throw new Error('Function not implemented.');
-            } } onLogout={function (): void {
-              throw new Error('Function not implemented.');
-            } } />}
+        }
+      />
+      <Route
+        path="/admin-login"
+        element={
+          <AdminLoginComponent
+            onLogin={handleAdminLogin}
+            onStudentLinkClick={() => navigate('/')}
           />
-          <Route
-            path="/admin-register-grades"
-            element={<AdminRegisterGrades adminName={adminName} onBack={function (): void {
-              throw new Error('Function not implemented.');
-            } } />}
+        }
+      />
+      <Route
+        path="/student-grades"
+        element={
+          <StudentGradesComponent studentId={studentId} onLogout={handleLogout} />
+        }
+      />
+      <Route
+        path="/admin-dashboard"
+        element={
+          <AdminDashboardComponent
+            adminName={adminName}
+            onRegisterGrades={() => navigate('/admin-register-grades')}
+            onAdminAccounts={() => navigate('/admin-accounts')}
+            onLogout={handleLogout}
           />
-          <Route
-            path="/admin-accounts"
-            element={<AdminStudentAccounts adminName={adminName} onBack={function (): void {
-              throw new Error('Function not implemented.');
-            } } />}
+        }
+      />
+      <Route
+        path="/admin-register-grades"
+        element={
+          <AdminRegisterGradesComponent
+            adminName={adminName}
+            onBack={() => navigate('/admin-dashboard')}
           />
-        </Routes>
-      </Router>
-    </div>
+        }
+      />
+      <Route
+        path="/admin-accounts"
+        element={
+          <AdminStudentAccountsComponent
+            adminName={adminName}
+            onBack={() => navigate('/admin-dashboard')}
+          />
+        }
+      />
+    </Routes>
   );
 }
