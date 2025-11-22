@@ -4,7 +4,7 @@ interface Student {
   id: number;
   firstName: string;
   lastName: string;
-  personNr: number;
+  personNr: string;
   year: number;
   phone?: string | null;
   adress?: string | null;

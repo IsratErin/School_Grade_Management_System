@@ -1,41 +1,49 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Grade {
   grade: string;
-  year: number;
-  subject: string;
+  year?: number;
+  subject?: string;
   level?: string;
+  course?: string;
 }
 
 interface Student {
   id: number;
   firstName: string;
   lastName: string;
-  personNr: number;
+  email: string;
+  personNr: string;
   year: number;
   phone?: string | null;
   adress?: string | null;
 }
 
-interface StudentGradesProps {
-  studentId: number;
-}
-
 const years = ['Year 1', 'Year 2', 'Year 3', 'All'];
 
-export default function StudentGrades({ studentId }: StudentGradesProps) {
+export default function StudentGrades() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email; // get email from navigation state
+
   const [student, setStudent] = useState<Student | null>(null);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState('All');
 
   useEffect(() => {
+    if (!email) {
+      console.error('Email not provided');
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/student/${studentId}`);
+        const res = await fetch(`http://localhost:5001/student/${email}`);
         const data = await res.json();
+
         if (res.ok) {
           setStudent(data.student);
           setGrades(data.grades || []);
@@ -48,12 +56,11 @@ export default function StudentGrades({ studentId }: StudentGradesProps) {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [studentId]);
 
-  const handleLogout = () => {
-    navigate('/');
-  };
+    fetchData();
+  }, [email]);
+
+  const handleLogout = () => navigate('/');
 
   const yearNumber =
     selectedYear === 'All' ? null : Number(selectedYear.split(' ')[1]);
@@ -78,7 +85,6 @@ export default function StudentGrades({ studentId }: StudentGradesProps) {
         </button>
       </div>
 
-      {/* Year Filter */}
       <div className="mt-6 flex gap-2">
         {years.map((y) => (
           <button
@@ -93,7 +99,6 @@ export default function StudentGrades({ studentId }: StudentGradesProps) {
         ))}
       </div>
 
-      {/* Grades Table */}
       <table className="mt-6 w-full border-collapse border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
@@ -113,10 +118,10 @@ export default function StudentGrades({ studentId }: StudentGradesProps) {
           ) : (
             filteredGrades.map((g, i) => (
               <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="border px-4 py-2">{g.subject}</td>
+                <td className="border px-4 py-2">{g.subject || g.course}</td>
                 <td className="border px-4 py-2">{g.grade}</td>
-                <td className="border px-4 py-2">{g.year}</td>
-                <td className="border px-4 py-2">{g.level}</td>
+                <td className="border px-4 py-2">{g.year || '-'}</td>
+                <td className="border px-4 py-2">{g.level || '-'}</td>
               </tr>
             ))
           )}

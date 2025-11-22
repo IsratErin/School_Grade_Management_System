@@ -1,14 +1,14 @@
-import "dotenv/config";
-import { Router } from "express";
-import { PrismaClient } from "../generated/prisma-client/client.ts";
-import { z } from "zod";
-import { studentSchema } from "../validators/valdation.js";
+import 'dotenv/config';
+import { Router } from 'express';
+import { PrismaClient } from '../generated/prisma-client/client.ts';
+import { z } from 'zod';
+import { studentSchema } from '../validators/valdation.js';
 
 const prisma = new PrismaClient();
 const router = Router();
 
 //get all grades by email
-router.get("/:email", async (req, res) => {
+router.get('/:email', async (req, res) => {
   const email = req.params.email;
   const validatedEmail = z.email().safeParse(email);
   if (!validatedEmail.success) {
@@ -21,12 +21,12 @@ router.get("/:email", async (req, res) => {
       where: { email: validatedEmail.data },
     });
     if (!student) {
-      return res.status(404).json({ message: "Student not found" });
+      return res.status(404).json({ message: 'Student not found' });
     }
     const validatedStudent = studentSchema.safeParse(student);
     if (!validatedStudent.success) {
       return res.status(500).json({
-        message: "Invalid response from server.",
+        message: 'Invalid response from server.',
         error: validatedStudent.error,
       });
     }
@@ -35,7 +35,7 @@ router.get("/:email", async (req, res) => {
       where: { studentId: validatedStudent.data.id },
     });
     if (!grades) {
-      return res.json({ message: "No grades or corses registered yet." });
+      return res.json({ message: 'No grades or corses registered yet.' });
     }
     const subjectIds = grades.map((s) => s.subjectId);
     const subjects = await prisma.subject.findMany({
@@ -57,12 +57,12 @@ router.get("/:email", async (req, res) => {
     if (error instanceof Error) {
       res.status(500).json(error.message);
     }
-    res.status(500).json("Error unknown");
+    res.status(500).json('Error unknown');
   }
 });
 
 //get grades by email and year OR subject
-router.get("/:email/:param", async (req, res) => {
+router.get('/:email/:param', async (req, res) => {
   const emailParam = req.params.email;
   const validatedEmailParam = z.email().safeParse(emailParam);
   if (!validatedEmailParam.success) {
@@ -75,12 +75,12 @@ router.get("/:email/:param", async (req, res) => {
       where: { email: validatedEmailParam.data },
     });
     if (!student) {
-      return res.status(404).json({ message: "Student not found" });
+      return res.status(404).json({ message: 'Student not found' });
     }
     const validatedStudent = studentSchema.safeParse(student);
     if (!validatedStudent.success) {
       return res.status(500).json({
-        message: "Invalid response from server.",
+        message: 'Invalid response from server.',
         error: validatedStudent.error,
       });
     }
@@ -101,7 +101,7 @@ router.get("/:email/:param", async (req, res) => {
       });
       if (!grades) {
         return res.json({
-          message: "No grades or corses registered for this year.",
+          message: 'No grades or corses registered for this year.',
         });
       }
       const subjectIds = grades.map((s) => s.subjectId);
@@ -126,7 +126,7 @@ router.get("/:email/:param", async (req, res) => {
       }
       const subject = await prisma.subject.findMany({
         where: {
-          name: { equals: validatedSubjectParam.data, mode: "insensitive" },
+          name: { equals: validatedSubjectParam.data, mode: 'insensitive' },
         },
         select: { name: true, level: true, id: true, updatedAt: true },
       });
@@ -159,7 +159,7 @@ router.get("/:email/:param", async (req, res) => {
     if (error instanceof Error) {
       res.status(500).json(error.message);
     }
-    res.status(500).json("Error unknown");
+    res.status(500).json('Error unknown');
   }
 });
 
