@@ -2,15 +2,15 @@ import "dotenv/config";
 import { Router } from "express";
 import { PrismaClient } from "../../generated/prisma-client/client.ts";
 import { z } from "zod";
-import { postGradeSchema } from "../../validators/valdation.js";
+import { postGradeSchema, personNrSchema } from "../../validators/valdation.js";
 
 const prisma = new PrismaClient();
 const router = Router();
 
 //post grades by personNr
 router.post("/:personNr", async (req, res) => {
-  const personNr = parseInt(req.params.personNr);
-  const validatedPersonNr = z.number().safeParse(personNr);
+  const personNr = req.params.personNr;
+  const validatedPersonNr = personNrSchema.safeParse(personNr);
   if (!validatedPersonNr.success) {
     return res.status(422).json({
       error: validatedPersonNr.error,

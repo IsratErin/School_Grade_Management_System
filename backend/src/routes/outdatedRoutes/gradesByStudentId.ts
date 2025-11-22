@@ -1,4 +1,13 @@
-/* //get student and all grades by studentID
+import "dotenv/config";
+import { Router } from "express";
+import { PrismaClient } from "../../generated/prisma-client/client.js";
+import { z } from "zod";
+import { studentSchema } from "../../validators/valdation.js";
+
+const prisma = new PrismaClient();
+const router = Router();
+
+//get student and all grades by studentID
 router.get("/:id", async (req, res) => {
   const userId = parseInt(req.params.id);
   const validatedUserId = z.number().positive().safeParse(userId);
@@ -50,4 +59,6 @@ router.get("/:id", async (req, res) => {
     }
     res.status(500).json("Error unknown");
   }
-}); */
+});
+
+export default router;
