@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import type { ChangeEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { ChangeEvent } from 'react';
 
 interface Student {
   id: number;
@@ -28,6 +28,13 @@ export default function AdminStudentAccounts({
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState('Year 1');
   const [hoverStudent, setHoverStudent] = useState<Student | null>(null);
+  const [isPopupHovered, setIsPopupHovered] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const hidePopupTimeoutRef = useRef<number | null>(null);
+
+  // dynamic popup position
+  const rowRef = useRef<HTMLTableRowElement | null>(null);
+  const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
 
   const yearNumber = Number(selectedYear.split(' ')[1]);
 
@@ -38,7 +45,6 @@ export default function AdminStudentAccounts({
         const res = await fetch('http://localhost:5001/admin/students');
         const data = await res.json();
         if (res.ok) setStudents(data);
-        else console.error('Failed to fetch students:', data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -54,7 +60,35 @@ export default function AdminStudentAccounts({
     if (!e.target.files) return;
     const file = e.target.files[0];
     console.log('CSV file selected:', file.name);
-    // implement CSV parsing and upload
+  };
+
+  const handleSave = async () => {
+    if (!hoverStudent) return;
+    try {
+      const res = await fetch(
+        `http://localhost:5001/admin/students/${hoverStudent.personNr}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(hoverStudent),
+        }
+      );
+      if (!res.ok) throw new Error('Failed to update student');
+      const result = await res.json();
+      const updated = result.updatedStudent;
+      setStudents((prev) =>
+        prev.map((s) => (s.personNr === updated.personNr ? updated : s))
+      );
+      setIsEditing(false);
+      alert('Student updated successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Error updating student.');
+    }
+  };
+
+  const handleDelete = () => {
+    alert('🛑 Delete route not implemented yet.');
   };
 
   if (loading) return <div className="p-10">Loading students...</div>;
@@ -65,13 +99,13 @@ export default function AdminStudentAccounts({
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
           className="flex items-center gap-1 bg-pink-400 px-3 py-1 rounded-md hover:bg-pink-500 cursor-pointer"
-          onClick={() => navigate(-1)} // <-- useNavigate here
+          onClick={() => navigate(-1)}
         >
           <span className="text-sm font-bold text-white">← {adminName}</span>
         </button>
       </div>
 
-      {/* YEAR TABS + CSV IMPORT BUTTON */}
+      {/* YEAR TABS & CSV IMPORT */}
       <div className="mt-6 flex justify-between items-center">
         <div className="flex gap-2">
           {years.map((y) => (
@@ -90,17 +124,15 @@ export default function AdminStudentAccounts({
         </div>
 
         <div>
-          <div className="mt-4">
-            <label className="bg-pink-400 text-white px-4 py-2 rounded cursor-pointer hover:bg-pink-500">
-              Import CSV
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCsvImport}
-                className="hidden"
-              />
-            </label>
-          </div>
+          <label className="bg-pink-400 text-white px-4 py-2 rounded cursor-pointer hover:bg-pink-500">
+            Import CSV
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCsvImport}
+              className="hidden"
+            />
+          </label>
         </div>
       </div>
 
@@ -123,17 +155,45 @@ export default function AdminStudentAccounts({
                 Phone
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Adress
+                Address
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredStudents.map((s) => (
               <tr
+                ref={rowRef}
                 key={s.personNr}
                 className="hover:bg-pink-50 cursor-pointer"
-                onMouseEnter={() => setHoverStudent(s)}
-                onMouseLeave={() => setHoverStudent(null)}
+                onMouseEnter={(e) => {
+                  if (hidePopupTimeoutRef.current) {
+                    window.clearTimeout(hidePopupTimeoutRef.current);
+                    hidePopupTimeoutRef.current = null;
+                  }
+                  setHoverStudent({ ...s });
+
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const tableWidth =
+                    e.currentTarget.closest('table')?.getBoundingClientRect()
+                      .width || window.innerWidth;
+                  const popupWidth = 320; // w-80 ~ 320px
+                  // center horizontally relative to row but keep inside table
+                  let left = rect.left + rect.width / 2 - popupWidth / 2;
+                  if (left < 5) left = 5;
+                  if (left + popupWidth > tableWidth - 5)
+                    left = tableWidth - popupWidth - 5;
+                  setPopupStyle({
+                    top: rect.bottom + window.scrollY + 5,
+                    left: left + window.scrollX,
+                  });
+                }}
+                onMouseLeave={() => {
+                  hidePopupTimeoutRef.current = window.setTimeout(() => {
+                    if (!isPopupHovered) setHoverStudent(null);
+                    hidePopupTimeoutRef.current = null;
+                    setIsEditing(false);
+                  }, 120);
+                }}
               >
                 <td className="px-6 py-4 text-sm font-medium">
                   {s.firstName} {s.lastName}
@@ -148,42 +208,112 @@ export default function AdminStudentAccounts({
         </table>
       </div>
 
-      {/* Hover popup */}
+      {/* HOVER POPUP */}
       {hoverStudent && (
         <div
-          className="absolute right-6 bottom-1/2 transform -translate-y-1/2 bg-yellow-100 p-4 border border-yellow-400 shadow-xl rounded w-80 z-10"
-          style={{ right: '19%', bottom: '50%', transform: 'translateY(200%)' }}
+          className="absolute bg-yellow-100 p-4 border border-yellow-400 shadow-xl rounded w-80 z-10"
+          style={{ ...popupStyle }}
+          onMouseEnter={() => {
+            setIsPopupHovered(true);
+            if (hidePopupTimeoutRef.current) {
+              window.clearTimeout(hidePopupTimeoutRef.current);
+              hidePopupTimeoutRef.current = null;
+            }
+          }}
+          onMouseLeave={() => {
+            setIsPopupHovered(false);
+            hidePopupTimeoutRef.current = window.setTimeout(() => {
+              setHoverStudent(null);
+              hidePopupTimeoutRef.current = null;
+              setIsEditing(false);
+            }, 120);
+          }}
         >
-          <p className="font-bold mb-2">
-            {hoverStudent.firstName} {hoverStudent.lastName}
-          </p>
-          <p className="text-sm">Email: {hoverStudent.email}</p>
-          <p className="text-sm">
-            PersonNr: <span className="font-mono">{hoverStudent.personNr}</span>
-          </p>
-          <p className="text-sm">
-            Phone:{' '}
-            <span className="font-mono">{hoverStudent.phone || '-'}</span>
-          </p>
-          <p className="text-sm">
-            Adress:{' '}
-            <span className="font-mono">{hoverStudent.adress || '-'}</span>
-          </p>
-
-          <div className="flex gap-4 mt-4">
-            <button className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100">
-              ✏ Edit
-            </button>
-            <button className="border border-red-400 px-4 py-1 bg-red-200 rounded-md text-sm hover:bg-red-300">
-              🗑 Delete
-            </button>
-          </div>
+          {!isEditing ? (
+            <>
+              <p className="font-bold mb-1">
+                {hoverStudent.firstName} {hoverStudent.lastName}
+              </p>
+              <p className="text-sm">Email: {hoverStudent.email}</p>
+              <p className="text-sm">PersonNr: {hoverStudent.personNr}</p>
+              <p className="text-sm">Phone: {hoverStudent.phone || '-'}</p>
+              <p className="text-sm">Address: {hoverStudent.adress || '-'}</p>
+              <div className="flex gap-4 mt-4">
+                <button
+                  className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100"
+                  onClick={() => setIsEditing(true)}
+                >
+                  ✏ Edit
+                </button>
+                <button
+                  className="border border-red-400 px-4 py-1 bg-red-200 rounded-md text-sm hover:bg-red-300"
+                  onClick={handleDelete}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="font-bold mb-1">
+                Editing {hoverStudent.firstName} {hoverStudent.lastName}
+              </p>
+              <input
+                className="border w-full px-2 text-sm mb-1 rounded"
+                value={hoverStudent.firstName}
+                onChange={(e) =>
+                  setHoverStudent({
+                    ...hoverStudent,
+                    firstName: e.target.value,
+                  })
+                }
+              />
+              <input
+                className="border w-full px-2 text-sm mb-1 rounded"
+                value={hoverStudent.lastName}
+                onChange={(e) =>
+                  setHoverStudent({ ...hoverStudent, lastName: e.target.value })
+                }
+              />
+              <input
+                className="border w-full px-2 text-sm mb-1 rounded"
+                value={hoverStudent.email}
+                onChange={(e) =>
+                  setHoverStudent({ ...hoverStudent, email: e.target.value })
+                }
+              />
+              <input
+                className="border w-full px-2 text-sm mb-1 rounded"
+                value={hoverStudent.phone || ''}
+                onChange={(e) =>
+                  setHoverStudent({ ...hoverStudent, phone: e.target.value })
+                }
+              />
+              <input
+                className="border w-full px-2 text-sm mb-1 rounded"
+                value={hoverStudent.adress || ''}
+                onChange={(e) =>
+                  setHoverStudent({ ...hoverStudent, adress: e.target.value })
+                }
+              />
+              <div className="flex gap-4 mt-4">
+                <button
+                  className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100"
+                  onClick={handleSave}
+                >
+                  💾 Save
+                </button>
+                <button
+                  className="border border-red-400 px-4 py-1 bg-red-200 rounded-md text-sm hover:bg-red-300"
+                  onClick={() => setIsEditing(false)}
+                >
+                  ❌ Cancel
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
-
-      <div className="absolute top-20 right-110 bg-red-100 p-2 border border-red-300 rounded shadow-md text-xs text-center translate-x-1/2">
-        Hover over a row and see pop up window
-      </div>
     </div>
   );
 }
