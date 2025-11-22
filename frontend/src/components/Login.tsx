@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 export default function Login() {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -12,7 +11,9 @@ export default function Login() {
       alert('Please enter both email and password.');
       return;
     }
-    navigate('/student-grades'); 
+
+    // Pass email via state
+    navigate('/student-grades', { state: { email } });
   };
 
   return (
@@ -21,7 +22,6 @@ export default function Login() {
         <h2 className="text-3xl font-bold mb-8 text-center">👤 Login</h2>
 
         <div className="space-y-4">
-          
           <div>
             <label
               htmlFor="email"
@@ -73,7 +73,6 @@ export default function Login() {
             </a>
           </div>
 
-          {/* Login Button */}
           <button
             onClick={handleLogin}
             className="w-full font-bold bg-pink-400 text-white py-2 px-4 rounded-md hover:bg-pink-500 focus:outline-pink-300 focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
@@ -83,7 +82,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Admin Button (Navigate) */}
       <button
         onClick={() => navigate('/admin-login')}
         className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"

@@ -12,7 +12,7 @@ export default function AdminLogin() {
       alert('Please enter both email and password.');
       return;
     }
-    navigate('/admin-dashboard'); 
+    navigate('/admin-dashboard');
   };
 
   return (
