@@ -42,7 +42,7 @@ router.get("/:email", async (req, res) => {
       where: { id: { in: subjectIds } },
       select: { id: true, name: true, level: true, updatedAt: true },
     });
-    const gradeSubjectJoin = grades.map((g) => ({
+    const data = grades.map((g) => ({
       grade: g.grade,
       year: g.year,
       subject: subjects.find((s) => s.id === g.subjectId)?.name,
@@ -50,9 +50,7 @@ router.get("/:email", async (req, res) => {
       timestamp: subjects.find((s) => s.id === g.id)?.updatedAt,
     }));
 
-    res
-      .status(200)
-      .json({ student: validatedStudent.data, grades: gradeSubjectJoin });
+    res.status(200).json({ student: validatedStudent.data, grades: data });
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json(error.message);
@@ -109,12 +107,12 @@ router.get("/:email/:param", async (req, res) => {
         where: { id: { in: subjectIds } },
         select: { id: true, name: true, level: true, updatedAt: true },
       });
-      const gradeSubjectJoin = grades.map((g) => ({
+      const data = grades.map((g) => ({
         grade: g.grade,
         course: `${subjects.find((s) => s.id === g.subjectId)?.name} ${subjects.find((s) => s.id === g.subjectId)?.level}`,
       }));
 
-      res.status(200).json(gradeSubjectJoin);
+      res.status(200).json(data);
     } else {
       //if subject
       const subjectParam = req.params.param;
@@ -148,12 +146,12 @@ router.get("/:email/:param", async (req, res) => {
           message: `No grades or corses registered for subject ${validatedSubjectParam.data}.`,
         });
       }
-      const gradeSubjectJoin = grades.map((g) => ({
+      const data = grades.map((g) => ({
         grade: g.grade,
         corse: `${subject.find((s) => s.id === g.subjectId)?.name} ${subject.find((s) => s.id === g.subjectId)?.level}`,
       }));
 
-      res.status(200).json(gradeSubjectJoin);
+      res.status(200).json(data);
     }
   } catch (error) {
     if (error instanceof Error) {

@@ -1,13 +1,13 @@
 import { coerce, email, z } from "zod";
 
-const yearSchema = z.number().min(1).max(3).optional().nullable();
-const personNrSchema = z
+export const yearSchema = z.number().min(1).max(3);
+export const personNrSchema = z
   .string()
   .regex(
     /^\d{6}-\d{4}$/,
     "Invalid format, format must be DDDDD-XXXX where D are birth date and X are identifying digits"
   );
-const firstNameSchema = z
+export const firstNameSchema = z
   .string()
   .min(2, { message: "Name need to be at least 2 characters long" })
   .max(30, { message: "Name cannot be longer then 30 letters." })
@@ -15,7 +15,7 @@ const firstNameSchema = z
     /^[\p{L} -]+$/u,
     "Invalid format, only letters, hyphen and space allowed in the name"
   );
-const lastNameSchema = z
+export const lastNameSchema = z
   .string()
   .min(2, { message: "Name need to be at least 2 characters long" })
   .max(60, { message: "Name cannot be longer then 60 letters." })
@@ -23,14 +23,14 @@ const lastNameSchema = z
     message:
       "Invalid format, only letters, hyphen and space allowed in the name",
   });
-const dateSchema = z.coerce.date();
+export const dateSchema = z.coerce.date();
 
 export const studentSchema = z.object({
   id: z.number().positive(),
   firstName: firstNameSchema,
   lastName: lastNameSchema,
   personNr: personNrSchema,
-  year: yearSchema,
+  year: yearSchema.nullable(),
   phone: z.string().optional().nullable(),
   email: z.email(),
   adress: z.string().optional().nullable(),
@@ -39,7 +39,7 @@ export const studentSchema = z.object({
 export const updateStudentSchema = z.object({
   firstName: firstNameSchema.optional(),
   lastName: lastNameSchema.optional(),
-  year: yearSchema,
+  year: yearSchema.optional(),
   phone: z.string().optional().nullable(),
   adress: z.string().optional().nullable(),
 });
