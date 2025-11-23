@@ -50,7 +50,7 @@ export default function Login() {
     const loggedIn = await signInUser(userCredentials);
     if (!loggedIn) {
       alert(
-        "Login failed. Please provide the correct username, email, and password used while registering the account."
+        "Please Register first. If already registered, please provide the correct firstname, lastname, email, and password used while registering the account."
       );
       return;
     }

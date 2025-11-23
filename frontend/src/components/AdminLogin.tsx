@@ -1,17 +1,62 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signInUser, createUser } from "../auth/authService";
+import { updateProfile } from "firebase/auth";
+import { toast } from "react-hot-toast";
+
+interface UserCredentials {
+  email: string;
+  password: string;
+}
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userfirstname, setUserfirstname] = useState<string>("");
+  const [userlastname, setUserlastname] = useState<string>("");
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      alert('Please enter both email and password.');
+  const userCredentials: UserCredentials = {
+    email,
+    password,
+  };
+
+  const handleRegister = async () => {
+    const username = `${userfirstname} ${userlastname}`;
+    if (!email || !password || !username) {
+      alert("Please enter username, email, and password.");
       return;
     }
-    navigate('/admin-dashboard');
+
+    const newUser = await createUser(userCredentials);
+    if (newUser) {
+      toast.success(`Admin Registration successful!`);
+      await updateProfile(newUser, {
+        displayName: username, //from firebase.auth().currentUser
+      });
+    }
+    console.log("Creating User with:", userCredentials);
+    console.log("New user created:", newUser);
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password || !userfirstname || !userlastname) {
+      alert(
+        "Please enter the firstname, lastname, email, and password to log in."
+      );
+      return;
+    }
+    const loggedIn = await signInUser(userCredentials);
+    if (!loggedIn) {
+      alert(
+        "Please Register first. If already registered, please provide the correct firstname, lastname, email, and password used while registering the account."
+      );
+      return;
+    }
+    toast.success("Logging in successful!");
+    setTimeout(() => {
+      navigate("/admin-dashboard");
+    }, 1500);
   };
 
   return (
@@ -26,6 +71,42 @@ export default function AdminLogin() {
           }}
           className="space-y-4"
         >
+          {/* User Firstname */}
+          <div>
+            <label
+              htmlFor="userfirstname"
+              className="block text-m font-medium text-black"
+            >
+              Firstname:
+            </label>
+
+            <input
+              id="userfirstname"
+              type="text"
+              placeholder="Enter your username"
+              value={userfirstname}
+              onChange={(e) => setUserfirstname(e.target.value)}
+              className="placeholder:text-sm mt-1 block w-full px-3 py-2 border border-pink-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500"
+            />
+          </div>
+          {/* User Lastname */}
+          <div>
+            <label
+              htmlFor="userlastname"
+              className="block text-m font-medium text-black"
+            >
+              Lastname:
+            </label>
+
+            <input
+              id="userlastname"
+              type="text"
+              placeholder="Enter your username"
+              value={userlastname}
+              onChange={(e) => setUserlastname(e.target.value)}
+              className="placeholder:text-sm mt-1 block w-full px-3 py-2 border border-pink-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500"
+            />
+          </div>
           {/* Email */}
           <div>
             <label
@@ -87,12 +168,19 @@ export default function AdminLogin() {
           >
             Login
           </button>
+          {/* Register button */}
+          <button
+            onClick={handleRegister}
+            className="w-full font-bold bg-gray-200 text-black py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Register
+          </button>
         </form>
       </div>
 
       {/* Student Login Button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate("/")}
         className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"
       >
         Student Login
