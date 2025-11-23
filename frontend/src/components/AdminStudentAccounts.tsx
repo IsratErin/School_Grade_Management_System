@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ChangeEvent } from 'react';
 import { getAuth } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 interface Student {
   id: number;
@@ -84,39 +85,58 @@ export default function AdminStudentAccounts() {
         prev.map((s) => (s.personNr === updated.personNr ? updated : s))
       );
       setIsEditing(false);
-      alert('Student updated successfully!');
+      toast.success('Student updated successfully!');
     } catch (error) {
       console.error(error);
-      alert('Error updating student.');
+      toast.error('Error updating student!');
     }
   };
 
   const handleDelete = async () => {
     if (!hoverStudent) return;
 
-    const confirmDelete = window.confirm(
-      `⚠ Are you sure you want to delete ${hoverStudent.firstName} ${hoverStudent.lastName}?`
+    toast(
+      (t) => (
+        <div className="p-2 text-pink-400 flex flex-col items-center text-center">
+          <p className="font-semibold text-sm">
+            Delete {hoverStudent.firstName} {hoverStudent.lastName}?
+          </p>
+          <div className="flex mt-2 gap-2">
+            <button
+              className="bg-pink-500 text-white px-3 py-1 text-sm rounded hover:bg-pink-600"
+              onClick={async () => {
+                try {
+                  const res = await fetch(
+                    `http://localhost:5001/admin/students/${hoverStudent.personNr}`,
+                    { method: 'DELETE' }
+                  );
+                  if (!res.ok) throw new Error('Failed to delete student');
+                  setStudents((prev) =>
+                    prev.filter((s) => s.personNr !== hoverStudent.personNr)
+                  );
+                  setHoverStudent(null);
+                  toast.success('Student deleted successfully!');
+                } catch (error) {
+                  console.error(error);
+                  toast.error('Error deleting student!');
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="bg-pink-200 text-pink-400 px-3 py-1 text-sm rounded hover:bg-pink-300"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 5000 }
     );
-    if (!confirmDelete) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:5001/admin/students/${hoverStudent.personNr}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!res.ok) throw new Error('Failed to delete student');
-
-      setStudents((prev) =>
-        prev.filter((s) => s.personNr !== hoverStudent.personNr)
-      );
-      setHoverStudent(null);
-      alert('Student deleted successfully!');
-    } catch (error) {
-      console.error(error);
-      alert('Error deleting student.');
-    }
   };
 
 
@@ -269,7 +289,7 @@ export default function AdminStudentAccounts() {
               <p className="text-sm">Address: {hoverStudent.adress || '-'}</p>
               <div className="flex gap-4 mt-4">
                 <button
-                  className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100"
+                  className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100 cursor-pointer"
                   onClick={() => setIsEditing(true)}
                 >
                   ✏ Edit
@@ -330,7 +350,7 @@ export default function AdminStudentAccounts() {
                   className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100"
                   onClick={handleSave}
                 >
-                  💾 Save
+                  🗂️ Save
                 </button>
                 <button
                   className="border border-red-400 px-4 py-1 bg-red-200 rounded-md text-sm hover:bg-red-300"

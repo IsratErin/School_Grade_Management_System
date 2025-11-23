@@ -13,6 +13,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-pink-50">
+      
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -22,10 +23,10 @@ export default function App() {
             element={
               <AdminLogin
                 onLogin={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
                 onStudentLinkClick={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
               />
             }
@@ -46,13 +47,13 @@ export default function App() {
               <AdminDashboard
                 adminName={adminName}
                 onRegisterGrades={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
                 onAdminAccounts={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
                 onLogout={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
               />
             }
@@ -64,7 +65,7 @@ export default function App() {
               <AdminRegisterGrades
                 adminName={adminName}
                 onBack={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
               />
             }
@@ -76,7 +77,7 @@ export default function App() {
               <AdminStudentAccounts
                 adminName={adminName}
                 onBack={function (): void {
-                  throw new Error("Function not implemented.");
+                  throw new Error('Function not implemented.');
                 }}
               />
             }

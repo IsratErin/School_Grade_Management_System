@@ -13,7 +13,7 @@ const years = ['Year 1', 'Year 2', 'Year 3'];
 export default function AdminRegisterGrades() {
   const navigate = useNavigate();
 
-  const [adminName, setAdminName] = useState('Admin'); // ✅ Firebase adminName
+  const [adminName, setAdminName] = useState('Admin'); 
   const [courses, setCourses] = useState<string[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedYear, setSelectedYear] = useState('Year 1');
@@ -23,7 +23,6 @@ export default function AdminRegisterGrades() {
 
   const yearNumber = Number(selectedYear.split(' ')[1]);
 
-  // ✅ Get adminName from Firebase on mount
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;

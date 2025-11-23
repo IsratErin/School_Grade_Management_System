@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { signInUser, createUser } from "../auth/authService";
-import { updateProfile } from "firebase/auth";
-import { toast } from "react-hot-toast";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signInUser, createUser } from '../auth/authService';
+import { updateProfile } from 'firebase/auth';
+import { toast } from 'react-hot-toast';
 
 interface UserCredentials {
   email: string;
@@ -11,10 +11,10 @@ interface UserCredentials {
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [userfirstname, setUserfirstname] = useState<string>("");
-  const [userlastname, setUserlastname] = useState<string>("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [userfirstname, setUserfirstname] = useState<string>('');
+  const [userlastname, setUserlastname] = useState<string>('');
 
   const userCredentials: UserCredentials = {
     email,
@@ -23,40 +23,46 @@ export default function AdminLogin() {
 
   const handleRegister = async () => {
     const username = `${userfirstname} ${userlastname}`;
-    if (!email || !password || !username) {
-      alert("Please enter username, email, and password.");
+    if (!email || !password || !userfirstname || !userlastname) {
+      toast.error('Please enter firstname, lastname, email, and password.');
       return;
     }
 
-    const newUser = await createUser(userCredentials);
-    if (newUser) {
-      toast.success(`Admin Registration successful!`);
-      await updateProfile(newUser, {
-        displayName: username, //from firebase.auth().currentUser
-      });
+    try {
+      const newUser = await createUser(userCredentials);
+      if (newUser) {
+        await updateProfile(newUser, {
+          displayName: username,
+        });
+        toast.success(`Admin registration successful! 🎉`);
+        console.log('New user created:', newUser);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Error registering admin ❌');
     }
-    console.log("Creating User with:", userCredentials);
-    console.log("New user created:", newUser);
   };
 
   const handleLogin = async () => {
     if (!email || !password || !userfirstname || !userlastname) {
-      alert(
-        "Please enter the firstname, lastname, email, and password to log in."
+      toast.error(
+        'Please enter firstname, lastname, email, and password to log in.'
       );
       return;
     }
-    const loggedIn = await signInUser(userCredentials);
-    if (!loggedIn) {
-      alert(
-        "Please Register first. If already registered, please provide the correct firstname, lastname, email, and password used while registering the account."
-      );
-      return;
+
+    try {
+      const loggedIn = await signInUser(userCredentials);
+      if (!loggedIn) {
+        toast.error('Please register first, or check your credentials. ❌');
+        return;
+      }
+      toast.success('Login successful! ✅');
+      setTimeout(() => navigate('/admin-dashboard'), 1500);
+    } catch (error) {
+      console.error(error);
+      toast.error('Login failed ❌');
     }
-    toast.success("Logging in successful!");
-    setTimeout(() => {
-      navigate("/admin-dashboard");
-    }, 1500);
   };
 
   return (
@@ -66,7 +72,7 @@ export default function AdminLogin() {
 
         <form
           onSubmit={(e) => {
-            e.preventDefault(); // prevent page reload
+            e.preventDefault();
             handleLogin();
           }}
           className="space-y-4"
@@ -79,16 +85,16 @@ export default function AdminLogin() {
             >
               Firstname:
             </label>
-
             <input
               id="userfirstname"
               type="text"
-              placeholder="Enter your username"
+              placeholder="Enter your firstname"
               value={userfirstname}
               onChange={(e) => setUserfirstname(e.target.value)}
               className="placeholder:text-sm mt-1 block w-full px-3 py-2 border border-pink-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500"
             />
           </div>
+
           {/* User Lastname */}
           <div>
             <label
@@ -97,16 +103,16 @@ export default function AdminLogin() {
             >
               Lastname:
             </label>
-
             <input
               id="userlastname"
               type="text"
-              placeholder="Enter your username"
+              placeholder="Enter your lastname"
               value={userlastname}
               onChange={(e) => setUserlastname(e.target.value)}
               className="placeholder:text-sm mt-1 block w-full px-3 py-2 border border-pink-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500"
             />
           </div>
+
           {/* Email */}
           <div>
             <label
@@ -161,15 +167,15 @@ export default function AdminLogin() {
             </a>
           </div>
 
-          {/* Login Button */}
+          {/* Buttons */}
           <button
             type="submit"
             className="w-full font-bold bg-pink-400 text-white py-2 px-4 rounded-md hover:bg-pink-500 focus:outline-pink-300 focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
           >
             Login
           </button>
-          {/* Register button */}
           <button
+            type="button"
             onClick={handleRegister}
             className="w-full font-bold bg-gray-200 text-black py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
@@ -180,8 +186,8 @@ export default function AdminLogin() {
 
       {/* Student Login Button */}
       <button
-        onClick={() => navigate("/")}
-        className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"
+        onClick={() => navigate('/')}
+        className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black bg-pink-400 p-2 rounded-md"
       >
         Student Login
       </button>
