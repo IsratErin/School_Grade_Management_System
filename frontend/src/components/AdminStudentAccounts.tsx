@@ -91,9 +91,34 @@ export default function AdminStudentAccounts() {
     }
   };
 
-  const handleDelete = () => {
-    alert('🛑 Delete route not implemented yet.');
+  const handleDelete = async () => {
+    if (!hoverStudent) return;
+
+    const confirmDelete = window.confirm(
+      `⚠ Are you sure you want to delete ${hoverStudent.firstName} ${hoverStudent.lastName}?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5001/admin/students/${hoverStudent.personNr}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      if (!res.ok) throw new Error('Failed to delete student');
+
+      setStudents((prev) =>
+        prev.filter((s) => s.personNr !== hoverStudent.personNr)
+      );
+      setHoverStudent(null);
+      alert('Student deleted successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Error deleting student.');
+    }
   };
+
 
   if (loading) return <div className="p-10">Loading students...</div>;
 
