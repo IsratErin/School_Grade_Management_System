@@ -39,7 +39,7 @@ enum GradeValue {
  model Grade {
   id Int @id @default(autoincrement())
   studentId Int
-  student Student @relation(fields: [studentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
   grade GradeValue?
   year Int?
   subjectId Int

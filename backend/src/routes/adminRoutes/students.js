@@ -67,4 +67,28 @@ router.put("/:personNr", async (req, res) => {
   }
 });
 
+//delete student by prsonNr
+router.delete("/:personNr", async (req, res) => {
+  try {
+    const personNr = req.params.personNr;
+    const validatedPersonNr = personNrSchema.safeParse(personNr);
+    if (!validatedPersonNr.success) {
+      return res.status(422).json({
+        error: validatedPersonNr.error,
+      });
+    }
+    await prisma.student.delete({
+      where: { personNr: validatedPersonNr.data },
+    });
+    res.status(200).json({ message: "Student deleted successfully" });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json(error.message);
+    }
+    res.status(500).json("Error unknown");
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
 export default router;
