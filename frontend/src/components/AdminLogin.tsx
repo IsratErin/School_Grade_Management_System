@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -19,7 +18,14 @@ export default function AdminLogin() {
     <div className="flex flex-col min-h-screen items-center justify-center p-6">
       <div className="bg-pink-100 p-10 rounded-lg shadow-xl w-full max-w-sm">
         <h2 className="text-3xl font-bold mb-8 text-center">👤 Admin Login</h2>
-        <div className="space-y-4">
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault(); // prevent page reload
+            handleLogin();
+          }}
+          className="space-y-4"
+        >
           {/* Email */}
           <div>
             <label
@@ -76,12 +82,12 @@ export default function AdminLogin() {
 
           {/* Login Button */}
           <button
-            onClick={handleLogin}
+            type="submit"
             className="w-full font-bold bg-pink-400 text-white py-2 px-4 rounded-md hover:bg-pink-500 focus:outline-pink-300 focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
           >
             Login
           </button>
-        </div>
+        </form>
       </div>
 
       {/* Student Login Button */}
