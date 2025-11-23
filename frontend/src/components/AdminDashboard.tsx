@@ -1,15 +1,25 @@
 import { useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth';
+import { useState } from 'react';
 
-interface AdminDashboardProps {
-  adminName: string;
-}
-
-export default function AdminDashboard({ adminName }: AdminDashboardProps) {
+export default function AdminDashboard() {
   const navigate = useNavigate();
+
+  const [adminName] = useState(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    return user?.displayName || 'Admin';
+  });
 
   const goToRegisterGrades = () => navigate('/admin-register-grades');
   const goToAdminAccounts = () => navigate('/admin-accounts');
-  const logout = () => navigate('/admin-login');
+  
+  const logout = () => {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      navigate('/admin-login');
+    });
+  };
 
   return (
     <div className="p-20 font-sans max-w-3xl mx-auto min-h-screen flex flex-col bg-pink-200">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 
 interface GradeData {
   student: string;
@@ -9,13 +10,10 @@ interface GradeData {
 
 const years = ['Year 1', 'Year 2', 'Year 3'];
 
-export default function AdminRegisterGrades({
-  adminName,
-}: {
-  adminName: string;
-}) {
+export default function AdminRegisterGrades() {
   const navigate = useNavigate();
 
+  const [adminName, setAdminName] = useState('Admin'); // ✅ Firebase adminName
   const [courses, setCourses] = useState<string[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedYear, setSelectedYear] = useState('Year 1');
@@ -24,6 +22,15 @@ export default function AdminRegisterGrades({
   const [loadingGrades, setLoadingGrades] = useState(false);
 
   const yearNumber = Number(selectedYear.split(' ')[1]);
+
+  // ✅ Get adminName from Firebase on mount
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      setAdminName(user.displayName || 'Admin');
+    }
+  }, []);
 
   // Fetch courses on mount
   useEffect(() => {
@@ -51,7 +58,6 @@ export default function AdminRegisterGrades({
     const fetchGrades = async () => {
       try {
         setLoadingGrades(true);
-        // Convert course to lowercase for backend route
         const courseParam = selectedCourse.toLowerCase().replace(' ', '');
         const res = await fetch(
           `http://localhost:5001/admin/grades/${courseParam}/${yearNumber}`

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ChangeEvent } from 'react';
+import { getAuth } from 'firebase/auth';
 
 interface Student {
   id: number;
@@ -13,16 +14,19 @@ interface Student {
   adress?: string | null;
 }
 
-interface AdminStudentAccountsProps {
-  adminName: string;
-}
-
 const years = ['Year 1', 'Year 2', 'Year 3'];
 
-export default function AdminStudentAccounts({
-  adminName,
-}: AdminStudentAccountsProps) {
+export default function AdminStudentAccounts() {
   const navigate = useNavigate();
+  const [adminName, setAdminName] = useState('Admin');
+
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      setAdminName(user.displayName || 'Admin');
+    }
+  }, []);
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
