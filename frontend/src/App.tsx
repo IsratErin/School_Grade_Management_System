@@ -1,19 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 //import { useState } from "react";
-import Login from "./components/Login";
-import AdminLogin from "./components/AdminLogin";
-import StudentGrades from "./components/StudentGrades";
-import AdminDashboard from "./components/AdminDashboard";
-import AdminRegisterGrades from "./components/AdminRegisterGrades";
-import AdminStudentAccounts from "./components/AdminStudentAccounts";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Login from './components/Login';
+import AdminLogin from './components/AdminLogin';
+import StudentGrades from './components/StudentGrades';
+import AdminDashboard from './components/AdminDashboard';
+import AdminRegisterGrades from './components/AdminRegisterGrades';
+import AdminStudentAccounts from './components/AdminStudentAccounts';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
-  const adminName = "Michiel vd Gragt";
+  const adminName = 'Michiel vd Gragt';
 
   return (
     <div className="min-h-screen bg-pink-50">
-      
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />

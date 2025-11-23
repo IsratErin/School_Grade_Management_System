@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { signInUser, createUser } from "../auth/authService";
-import { updateProfile } from "firebase/auth";
-import { toast } from "react-hot-toast";
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { signInUser, createUser } from '../auth/authService';
+import { updateProfile } from 'firebase/auth';
+import { toast } from 'react-hot-toast';
 
 interface UserCredentials {
   email: string;
@@ -11,10 +11,10 @@ interface UserCredentials {
 
 export default function Login() {
   const navigate = useNavigate();
-  const [userfirstname, setUserfirstname] = useState<string>("");
-  const [userlastname, setUserlastname] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [userfirstname, setUserfirstname] = useState<string>('');
+  const [userlastname, setUserlastname] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const userCredentials: UserCredentials = {
     email,
@@ -24,7 +24,7 @@ export default function Login() {
   const handleRegister = async () => {
     const username = `${userfirstname} ${userlastname}`;
     if (!email || !password || !username) {
-      alert("Please enter username, email, and password.");
+      alert('Please enter username, email, and password.');
       return;
     }
 
@@ -36,25 +36,25 @@ export default function Login() {
       });
     }
 
-    console.log("Creating User with:", userCredentials);
-    console.log("New user created:", newUser);
+    console.log('Creating User with:', userCredentials);
+    console.log('New user created:', newUser);
   };
 
   const handleLogin = async () => {
     if (!email || !password || !userfirstname || !userlastname) {
       alert(
-        "Please enter the firstname, lastname, email, and password to log in."
+        'Please enter the firstname, lastname, email, and password to log in.'
       );
       return;
     }
     const loggedIn = await signInUser(userCredentials);
     if (!loggedIn) {
       alert(
-        "Please Register first. If already registered, please provide the correct firstname, lastname, email, and password used while registering the account."
+        'Please Register first. If already registered, please provide the correct firstname, lastname, email, and password used while registering the account.'
       );
       return;
     }
-    toast.success("Logging in successful!");
+    toast.success('Logging in successful!');
     setTimeout(() => {
       navigate(`/student-grades`);
     }, 2000);
@@ -179,7 +179,7 @@ export default function Login() {
       </div>
 
       <button
-        onClick={() => navigate("/admin-login")}
+        onClick={() => navigate('/admin-login')}
         className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"
       >
         Admin
