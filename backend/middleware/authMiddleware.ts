@@ -21,6 +21,7 @@ const verifyIdToken = async (
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
+    console.log("Token verified successfully:", decodedToken);
     req.user = decodedToken;
     next();
   } catch (error) {

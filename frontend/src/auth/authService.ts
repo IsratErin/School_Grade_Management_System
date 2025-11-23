@@ -4,8 +4,9 @@ import {
   signInWithEmailAndPassword,
   validatePassword,
 } from "firebase/auth";
+import app from "./firebase.init";
 
-const auth = getAuth();
+const auth = getAuth(app);
 
 interface userCredential {
   email: string;
@@ -46,6 +47,7 @@ const signInUser = async (userCredential: userCredential) => {
       userCredential.email,
       userCredential.password
     );
+    console.log("User signed in:", existingUser.user.email);
     return existingUser.user;
   } catch (error) {
     if (error instanceof Error) {
@@ -76,6 +78,7 @@ const getIdToken = async () => {
 const signOutUser = async () => {
   try {
     await auth.signOut();
+    console.log("User signed out successfully.");
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error signing out user:", error.message);
