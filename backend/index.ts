@@ -4,7 +4,7 @@ import studentRoute from "./src/routes/studentRoutes.js";
 import adminStudentsRoutes from "./src/routes/adminRoutes/students.js";
 import adminGradesChangeRoutes from "./src/routes/adminRoutes/changeGrades.js";
 import adminGradesViewRoutes from "./src/routes/adminRoutes/viewGrades.js";
-import outdatedStudentRoute from "./src/routes/outdatedRoutes/gradesByStudentId.js";
+//import outdatedStudentRoute from "./src/routes/outdatedRoutes/gradesByStudentId.js";
 import type { CorsOptions } from "cors";
 import verifyIdToken from "./middleware/authMiddleware.js";
 //import { PrismaClient } from "./src/generated/prisma-client/client.ts";
@@ -25,7 +25,7 @@ app.use("/student", verifyIdToken, studentRoute);
 app.use("/admin/students", adminStudentsRoutes);
 app.use("/admin/grades", adminGradesChangeRoutes);
 app.use("/admin/grades", adminGradesViewRoutes);
-app.use("/student", outdatedStudentRoute);
+//app.use("/student", outdatedStudentRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

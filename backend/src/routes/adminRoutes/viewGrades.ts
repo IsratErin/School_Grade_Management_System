@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
     if (!validatedSubjects.success) {
       return res.status(500).json({
         message: "Invalid response from server.",
-        error: validatedStudent.error,
+        error: validatedSubjects.error,
       });
     }
     const courses = subjects.map((s) => `${s.name} ${s.level}`);
@@ -60,7 +60,8 @@ router.get("/:course/:year", async (req, res) => {
       },
       select: { id: true },
     });
-    if (!subjectId) return res.status(404).json({ message: 'Subject not found' });
+    if (!subjectId)
+      return res.status(404).json({ message: "Subject not found" });
 
     const grades = await prisma.grade.findMany({
       where: { subjectId: subjectId.id },
@@ -77,13 +78,13 @@ router.get("/:course/:year", async (req, res) => {
       return {
         gradeId: g?.id,
         student: `${s.firstName} ${s.lastName}`,
-        grade: g?.grade || '',
+        grade: g?.grade || "",
         date: g?.updatedAt
-          ? new Date(g.updatedAt).toISOString().split('T')[0]
-          : '',
+          ? new Date(g.updatedAt).toISOString().split("T")[0]
+          : "",
       };
     });
-    
+
     return res.status(200).json(data);
   } catch (error) {
     if (error instanceof Error) {

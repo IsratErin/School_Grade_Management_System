@@ -96,7 +96,9 @@ router.post("/import", async (req, res) => {
   const students = req.body;
 
   if (!Array.isArray(students)) {
-    return res.status(400).json({ message: "Invalid CSV format. Expected an array." });
+    return res
+      .status(400)
+      .json({ message: "Invalid CSV format. Expected an array." });
   }
 
   // Validate each student
@@ -111,11 +113,15 @@ router.post("/import", async (req, res) => {
   }
 
   const cleanedStudents = validated.map((v) => v.data);
+  const validatedData = z.array(studentSchema).safeParse(cleanedStudents);
+  if (!validatedData.success) {
+    return res.status(500).json("Error mapping CSV data.");
+  }
 
   try {
     await prisma.student.createMany({
-      data: cleanedStudents,
-      skipDuplicates: true, 
+      data: validatedData.data,
+      skipDuplicates: true,
     });
 
     res.status(200).json({

@@ -24,6 +24,7 @@ export const lastNameSchema = z
       "Invalid format, only letters, hyphen and space allowed in the name",
   });
 export const dateSchema = z.coerce.date();
+export const gradeScaleSchema = z.enum(["A", "B", "C", "D", "E", "F"]);
 
 export const studentSchema = z.object({
   id: z.number().positive(),
@@ -40,6 +41,8 @@ export const updateStudentSchema = z.object({
   firstName: firstNameSchema.optional(),
   lastName: lastNameSchema.optional(),
   year: yearSchema.optional(),
+  personNr: personNrSchema.optional(),
+  email: z.email().optional(),
   phone: z.string().optional().nullable(),
   adress: z.string().optional().nullable(),
 });
@@ -47,7 +50,7 @@ export const updateStudentSchema = z.object({
 export const gradeSchema = z.object({
   id: z.number().positive(),
   studentId: z.number().positive(),
-  grade: z.enum(["A", "B", "C", "D", "E", "F"]),
+  grade: gradeScaleSchema.nullable(),
   year: yearSchema,
   subjectId: z.number().positive(),
   createdAt: dateSchema,
@@ -56,7 +59,7 @@ export const gradeSchema = z.object({
 
 export const postGradeSchema = z.object({
   studentId: z.number().positive(),
-  grade: z.enum(["A", "B", "C", "D", "E", "F"]),
+  grade: gradeScaleSchema.nullable(),
   year: yearSchema,
   subjectId: z.number().positive(),
 });

@@ -2,7 +2,12 @@ import "dotenv/config";
 import { Router } from "express";
 import { PrismaClient } from "../../generated/prisma-client/client.ts";
 import { z } from "zod";
-import { postGradeSchema, personNrSchema } from "../../validators/valdation.js";
+import {
+  postGradeSchema,
+  personNrSchema,
+  studentSchema,
+  subjectSchema,
+} from "../../validators/valdation.js";
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -19,20 +24,41 @@ router.post("/:personNr", async (req, res) => {
   try {
     //this step could be skipped if we can use the storage in a good way
     const student = await prisma.student.findUnique({
-      //might need to do some validations here
       where: { personNr: validatedPersonNr.data },
       select: { id: true },
     });
-    const subject = await prisma.subject.findFirst({
+    const validatedStudentId = z
+      .object({
+        id: z.number(),
+      })
+      .safeParse(student);
+    if (!validatedStudentId.success) {
+      return res.status(500).json({
+        message: "Invalid response from server.",
+        error: validatedStudentId.error,
+      });
+    }
+    const subjectId = await prisma.subject.findFirst({
       where: { name: req.body.name, level: req.body.level },
       select: { id: true },
     });
+    const validatedSubjectId = z
+      .object({
+        id: z.number().positive(),
+      })
+      .safeParse(subjectId);
+    if (!validatedSubjectId.success) {
+      return res.status(500).json({
+        message: "Invalid response from server.",
+        error: validatedSubjectId.error,
+      });
+    }
 
     const grade = {
-      studentId: student.id,
+      studentId: validatedStudentId.data.id,
       grade: req.body.grade,
       year: req.body.year,
-      subjectId: subject.id,
+      subjectId: validatedSubjectId.data.id,
     };
     const validatedGrade = postGradeSchema.safeParse(grade);
     if (!validatedGrade.success) {
@@ -86,7 +112,6 @@ router.put("/:gradeId", async (req, res) => {
     }
     res.status(500).json("Error unknown");
   }
-  
 });
 
 export default router;
