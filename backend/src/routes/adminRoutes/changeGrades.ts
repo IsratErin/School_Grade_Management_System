@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Router } from "express";
-import { PrismaClient } from "../../generated/prisma-client/client.ts";
+import { PrismaClient } from "../../generated/prisma-client/client.js";
 import { z } from "zod";
 import {
   postGradeSchema,
