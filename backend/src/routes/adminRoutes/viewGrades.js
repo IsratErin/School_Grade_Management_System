@@ -60,24 +60,31 @@ router.get("/:course/:year", async (req, res) => {
       },
       select: { id: true },
     });
+    if (!subjectId) return res.status(404).json({ message: 'Subject not found' });
+
     const grades = await prisma.grade.findMany({
       where: { subjectId: subjectId.id },
-      select: { grade: true, studentId: true, updatedAt: true, id: true },
+      select: { id: true, grade: true, studentId: true, updatedAt: true },
     });
 
     const studentIds = grades.map((s) => s.studentId);
     const students = await prisma.student.findMany({
       where: { id: { in: studentIds }, year: validatedParams.data.year },
-      select: { firstName: true, lastName: true, id: true, year: true },
+      select: { firstName: true, lastName: true, id: true },
     });
-    const data = students.map((s) => ({
-      student: `${s.firstName} ${s.lastName}`,
-      grade: grades.find((g) => g.studentId === s.id).grade,
-      date: grades.find((g) => g.studentId === s.id).updatedAt,
-      gradeId: grades.find((g) => g.studentId === s.id).id,
-      //year: s.year,
-    }));
-    res.status(200).json(data);
+    const data = students.map((s) => {
+      const g = grades.find((grade) => grade.studentId === s.id);
+      return {
+        gradeId: g?.id,
+        student: `${s.firstName} ${s.lastName}`,
+        grade: g?.grade || '',
+        date: g?.updatedAt
+          ? new Date(g.updatedAt).toISOString().split('T')[0]
+          : '',
+      };
+    });
+    
+    return res.status(200).json(data);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json(error.message);

@@ -1,163 +1,226 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
-interface GradeData {
+interface Grade {
+  gradeId: number | null; // null means NEW grade not saved yet
   student: string;
+  personNr: string;
   grade: string;
   date: string;
 }
 
-const years = ['Year 1', 'Year 2', 'Year 3'];
+const years = ['1', '2', '3'];
 
 export default function AdminRegisterGrades() {
   const navigate = useNavigate();
 
-  const [adminName, setAdminName] = useState('Admin'); // ✅ Firebase adminName
-  const [courses, setCourses] = useState<string[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [selectedYear, setSelectedYear] = useState('Year 1');
-  const [grades, setGrades] = useState<GradeData[]>([]);
-  const [loadingCourses, setLoadingCourses] = useState(true);
-  const [loadingGrades, setLoadingGrades] = useState(false);
-
-  const yearNumber = Number(selectedYear.split(' ')[1]);
-
-  // ✅ Get adminName from Firebase on mount
-  useEffect(() => {
+  const [adminName] = useState(() => {
     const auth = getAuth();
     const user = auth.currentUser;
-    if (user) {
-      setAdminName(user.displayName || 'Admin');
-    }
-  }, []);
+    return user?.displayName || 'Admin';
+  });
 
-  // Fetch courses on mount
+  const [courses, setCourses] = useState<string[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedYear, setSelectedYear] = useState('1');
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch courses
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        setLoadingCourses(true);
         const res = await fetch('http://localhost:5001/admin/grades');
         if (!res.ok) throw new Error('Failed to fetch courses');
-        const data: string[] = await res.json();
+        const data = await res.json();
         setCourses(data);
-        setSelectedCourse(data[0] || '');
-      } catch (err) {
-        console.error('Error fetching courses:', err);
-      } finally {
-        setLoadingCourses(false);
+        setSelectedCourse(data[0] ?? '');
+      } catch {
+        toast.error('Error loading courses!');
       }
     };
     fetchCourses();
   }, []);
 
-  // Fetch grades when selectedCourse or selectedYear changes
+  // Fetch grades 
   useEffect(() => {
-    if (!selectedCourse) return;
+    if (!selectedCourse || !selectedYear) return;
 
     const fetchGrades = async () => {
+      setLoading(true);
       try {
-        setLoadingGrades(true);
-        const courseParam = selectedCourse.toLowerCase().replace(' ', '');
+        const courseParam = selectedCourse.replace(' ', '').toLowerCase();
         const res = await fetch(
-          `http://localhost:5001/admin/grades/${courseParam}/${yearNumber}`
+          `http://localhost:5001/admin/grades/${courseParam}/${selectedYear}`
         );
         if (!res.ok) throw new Error('Failed to fetch grades');
-        const data: GradeData[] = await res.json();
-        setGrades(data);
-      } catch (err) {
-        console.error('Error fetching grades:', err);
+        const data = await res.json();
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapped = data.map((g: any) => ({
+          gradeId: g.gradeId,
+          personNr: g.personNr,
+          student: g.student,
+          grade: g.grade || '',
+          date: g.date ?? '',
+        }));
+        setGrades(mapped);
+      } catch {
+        toast.error('Error loading grades!');
       } finally {
-        setLoadingGrades(false);
+        setLoading(false);
       }
     };
+
     fetchGrades();
-  }, [selectedCourse, yearNumber]);
+  }, [selectedCourse, selectedYear]);
+  // Update grade
+  const handleGradeChange = async (grade: Grade, value: string) => {
+    const letter = value.toUpperCase();
+    if (!/^[A-F]?$/.test(letter)) return; 
+
+    setGrades((prev) =>
+      prev.map((g) => (g === grade ? { ...g, grade: letter } : g))
+    );
+
+    if (grade.gradeId === null) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5001/admin/grades/${grade.gradeId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grade: letter }),
+        }
+      );
+
+      if (!res.ok) throw new Error();
+      toast.success('Grade updated!');
+    } catch {
+      toast.error('Error updating grade!');
+    }
+  };
+
+  const saveNewGrade = async (grade: Grade) => {
+    if (!grade.personNr || !grade.grade) {
+      toast.error('Enter grade first!');
+      return;
+    }
+
+    try {
+      const [name, level] = selectedCourse.split(' ');
+      const res = await fetch(
+        `http://localhost:5001/admin/grades/${grade.personNr}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            level,
+            grade: grade.grade,
+            year: parseInt(selectedYear),
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      toast.success('Grade added!');
+      window.location.reload(); 
+    } catch {
+      toast.error('Error adding grade!');
+    }
+  };
 
   return (
-    <div className="p-20 font-sans max-w-4xl mx-auto bg-pink-200 min-h-screen">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold">Admin</h1>
+    <div className="p-10 max-w-5xl mx-auto font-sans">
+      <div className="flex justify-between mb-6">
+        <h1 className="text-3xl font-bold">Admin: {adminName}</h1>
         <button
-          className="flex items-center gap-1 border bg-pink-400 text-white px-3 py-1 rounded-md mb-2 cursor-pointer hover:bg-pink-500"
+          className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 rounded-md"
           onClick={() => navigate('/admin-dashboard')}
         >
-          <span className="text-sm font-bold">← {adminName}</span>
+          ← Back
         </button>
       </div>
 
-      {/* YEAR TABS and COURSE DROPDOWN */}
-      <div className="mt-6 flex justify-between items-center">
-        <div className="flex gap-2">
-          {years.map((y) => (
-            <button
-              key={y}
-              className={`px-4 py-2 rounded border border-pink-400 transition-colors ${
-                selectedYear === y
-                  ? 'bg-pink-400 text-white font-semibold'
-                  : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'
-              }`}
-              onClick={() => setSelectedYear(y)}
-            >
-              {y}
-            </button>
-          ))}
-        </div>
-
-        <select
-          className="border border-pink-400 bg-pink-400 text-white font-semibold px-3 py-1 rounded-md cursor-pointer"
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)}
-        >
-          {loadingCourses ? (
-            <option>Loading courses...</option>
-          ) : (
-            courses.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))
-          )}
-        </select>
+      {/* YEAR SELECT */}
+      <div className="flex justify-between gap-4 mb-6">
+      <div className="flex gap-2 mb-4">
+        {years.map((y) => (
+          <button
+            key={y}
+            className={`px-4 py-2 rounded border ${
+              selectedYear === y ? 'bg-pink-400 text-white' : 'bg-gray-100'
+            }`}
+            onClick={() => setSelectedYear(y)}
+          >
+            Year {y}
+          </button>
+        ))}
       </div>
 
-      {/* REGISTER GRADES TABLE */}
-      <h2 className="text-2xl font-semibold mt-8">Register Grades</h2>
-      {loadingGrades ? (
-        <div className="mt-4 p-4 text-center">Loading grades...</div>
+      {/* COURSE SELECT */}
+      <div>
+      <select
+        className="border border-pink-400 px-3 py-1 rounded-md mb-6"
+        value={selectedCourse}
+        onChange={(e) => setSelectedCourse(e.target.value)}
+      >
+        {courses.map((c) => (
+          <option key={c}>{c}</option>
+        ))}
+      </select>
+      </div>
+    </div>
+      {/* TABLE */}
+      {loading ? (
+        <p>Loading...</p>
       ) : (
-        <div className="mt-4 border border-gray-300 rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
+        <>
+          <table className="min-w-full border border-gray-300 rounded-lg mb-4">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">
-                  Student
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Grade
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
-                  Date
-                </th>
+                <th className="px-6 py-3">Student</th>
+                <th className="px-6 py-3">Grade</th>
+                <th className="px-6 py-3">Date</th>
+                <th></th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {grades.map((g, i) => (
-                <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {g.student}
+                <tr key={i}>
+                  <td className="px-6 py-2">{g.student || <i>New</i>}</td>
+                  <td className="px-6 py-2">
+                    <input
+                      value={g.grade}
+                      maxLength={1}
+                      onChange={(e) => handleGradeChange(g, e.target.value)}
+                      className="border px-2 py-1 w-16 text-center"
+                    />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {g.grade || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {g.date ? new Date(g.date).toLocaleDateString() : '-'}
+                  <td className="px-6 py-2">{g.date || '-'}</td>
+
+                  {/* Save button for new rows */}
+                  <td className="px-6 py-2">
+                    {g.gradeId === null && (
+                      <button
+                        className="bg-green-500 text-white px-3 py-1 rounded"
+                        onClick={() => saveNewGrade(g)}
+                      >
+                        Save
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+
+        </>
       )}
     </div>
   );
