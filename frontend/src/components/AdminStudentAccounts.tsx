@@ -343,6 +343,9 @@ export default function AdminStudentAccounts() {
           )}
         </div>
       )}
+      <div className="absolute top-20 right-110 bg-red-100 p-2 border border-red-300 rounded shadow-md text-xs text-center translate-x-1/2">
+        Hover over a row and see pop up window
+      </div>
     </div>
   );
 }

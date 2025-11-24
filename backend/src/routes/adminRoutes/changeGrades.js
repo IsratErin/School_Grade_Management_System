@@ -85,9 +85,8 @@ router.put("/:gradeId", async (req, res) => {
       res.status(500).json(error.message);
     }
     res.status(500).json("Error unknown");
-  } finally {
-    await prisma.$disconnect(); //we also want to reload the page here
   }
+  
 });
 
 export default router;
