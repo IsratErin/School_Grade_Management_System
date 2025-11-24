@@ -108,9 +108,11 @@ router.put("/:gradeId", async (req, res) => {
       .json({ message: "Grade updated successfully", updatedGrade });
   } catch (error) {
     if (error instanceof Error) {
-      res.status(500).json(error.message);
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "Oops..! Server error updating grade." });
     }
-    res.status(500).json("Error unknown");
   }
 });
 
