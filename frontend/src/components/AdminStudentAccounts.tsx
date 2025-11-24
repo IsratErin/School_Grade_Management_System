@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ChangeEvent } from 'react';
 import { getAuth } from 'firebase/auth';
+import Papa from 'papaparse';
+import { z } from 'zod';
 
 interface Student {
   id: number;
@@ -15,6 +17,19 @@ interface Student {
 }
 
 const years = ['Year 1', 'Year 2', 'Year 3'];
+
+const studentValidation = z.object({
+  id: z.number(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
+  personNr: z.string().regex(/^\d{6}-\d{4}$/, {
+    message: 'Invalid format, must be DDDDDD-XXXX',
+  }),
+  year: z.number().min(1).max(3),
+  phone: z.string().optional(),
+  adress: z.string().optional(),
+});
 
 export default function AdminStudentAccounts() {
   const navigate = useNavigate();
@@ -60,10 +75,71 @@ export default function AdminStudentAccounts() {
 
   const filteredStudents = students.filter((s) => s.year === yearNumber);
 
-  const handleCsvImport = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCsvImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
-    console.log('CSV file selected:', file.name);
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const parsedStudents = results.data as any[]; // raw CSV rows
+        const validStudents: any[] = [];
+        const errors: { row: number; error: string }[] = [];
+
+        parsedStudents.forEach((row, index) => {
+          const parsedRow = {
+            id: Number(row.id),
+            firstName: row.firstName,
+            lastName: row.lastName,
+            email: row.email,
+            personNr: row.personNr,
+            year: Number(row.year),
+            phone: row.phone || null,
+            adress: row.adress || null,
+          };
+
+          const validation = studentValidation.safeParse(parsedRow);
+          if (validation.success) {
+            validStudents.push(parsedRow);
+          } else {
+            errors.push({ row: index + 2, error: validation.error.message }); // +2 for CSV header
+          }
+        });
+
+        if (errors.length > 0) {
+          console.error('CSV Validation Errors:', errors);
+          alert(
+            `Some rows failed validation:\n` +
+              errors.map((e) => `Row ${e.row}: ${e.error}`).join('\n')
+          );
+          return; // stop sending invalid CSV
+        }
+
+        // Send valid rows to backend
+        try {
+          const res = await fetch(
+            'http://localhost:5001/admin/students/import',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(validStudents),
+            }
+          );
+          const data = await res.json();
+          console.log(data);
+          alert(data.message);
+          if (data.count) setStudents((prev) => [...prev, ...validStudents]);
+        } catch (err) {
+          console.error(err);
+          alert('Error importing CSV');
+        }
+      },
+      error: (err) => {
+        console.error('CSV parse error:', err);
+        alert('Error parsing CSV file');
+      },
+    });
   };
 
   const handleSave = async () => {
@@ -118,7 +194,6 @@ export default function AdminStudentAccounts() {
       alert('Error deleting student.');
     }
   };
-
 
   if (loading) return <div className="p-10">Loading students...</div>;
 

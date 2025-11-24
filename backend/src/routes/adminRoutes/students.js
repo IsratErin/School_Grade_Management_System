@@ -91,4 +91,46 @@ router.delete("/:personNr", async (req, res) => {
   }
 });
 
+// import students from CSV
+router.post("/import", async (req, res) => {
+  const students = req.body;
+
+  if (!Array.isArray(students)) {
+    return res.status(400).json({ message: "Invalid CSV format. Expected an array." });
+  }
+
+  // Validate each student
+  const validated = students.map((s) => studentSchema.safeParse(s));
+
+  const hasErrors = validated.some((v) => !v.success);
+  if (hasErrors) {
+    return res.status(422).json({
+      message: "One or more students in CSV failed validation.",
+      errors: validated.filter((v) => !v.success),
+    });
+  }
+
+  const cleanedStudents = validated.map((v) => v.data);
+
+  try {
+    await prisma.student.createMany({
+      data: cleanedStudents,
+      skipDuplicates: true, 
+    });
+
+    res.status(200).json({
+      message: "CSV imported successfully!",
+      count: cleanedStudents.length,
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+
+    res.status(500).json("Unknown error");
+  }
+});
+
 export default router;

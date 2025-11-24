@@ -12,6 +12,8 @@ import verifyIdToken from "./middleware/authMiddleware.js";
 //const prisma = new PrismaClient();
 const corsOptions: CorsOptions = {
   origin: ["http://localhost:5173"], //works for default react localhosting
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 const PORT = 5001;
 const app = express();
