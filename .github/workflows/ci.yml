@@ -13,6 +13,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: schooldb
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
@@ -27,9 +42,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
+      - name: Set DATABASE_URL for Prisma
+        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/schooldb?schema=public" >> $GITHUB_ENV
+
       - name: Install dependencies
         working-directory: ./backend
         run: npm ci
+
+      - name: Run Prisma migrations
+        working-directory: ./backend
+        run: npx prisma migrate deploy
+
+      - name: Seed database
+        working-directory: ./backend
+        run: npm run seed || echo "No seed script"
 
       - name: Run tests
         working-directory: ./backend
