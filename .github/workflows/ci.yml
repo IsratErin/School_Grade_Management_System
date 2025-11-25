@@ -42,8 +42,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      # CI ONLY DATABASE URL (SAFE)
-      - name: Set DATABASE_URL for Prisma (CI only)
+      # CI-only database URL
+      - name: Set DATABASE_URL for Prisma
         run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb?schema=public" >> $GITHUB_ENV
 
       - name: Install dependencies
@@ -56,7 +56,7 @@ jobs:
 
       - name: Seed database
         working-directory: ./backend
-        run: npm run seed || echo "No seed script found"
+        run: npx prisma db seed
 
       - name: Run tests
         working-directory: ./backend
