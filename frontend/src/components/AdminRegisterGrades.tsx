@@ -139,6 +139,38 @@ export default function AdminRegisterGrades() {
     }
   };
 
+  //update grade
+  const saveUpdatedGrade = async (grade: Grade) => {
+    if (!grade.grade) {
+      toast.error("Enter grade first!");
+      return;
+    }
+
+    try {
+      const [name, level] = selectedCourse.split(" ");
+      const res = await fetch(
+        `http://localhost:5001/admin/grades/${grade.gradeId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            level,
+            grade: grade.grade,
+            year: parseInt(selectedYear),
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      toast.success("Grade updated!");
+      window.location.reload();
+    } catch {
+      toast.error("Error updating grade!");
+    }
+  };
+
   return (
     <div className="p-10 max-w-5xl mx-auto font-sans">
       <div className="flex justify-between mb-6">
@@ -216,6 +248,14 @@ export default function AdminRegisterGrades() {
                       onClick={() => saveNewGrade(g)}
                     >
                       Save
+                    </button>
+                  )}
+                  {g.gradeId !== null && (
+                    <button
+                      className="bg-purple-500 text-white px-3 py-1 rounded"
+                      onClick={() => saveUpdatedGrade(g)}
+                    >
+                      Update
                     </button>
                   )}
                 </td>

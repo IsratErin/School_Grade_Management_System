@@ -1,4 +1,4 @@
-import admin from "../firebase/firebaseAdmin";
+import admin from "../firebase/firebaseAdmin.js";
 import { Request, Response, NextFunction } from "express";
 
 interface AuthenticatedRequest extends Request {

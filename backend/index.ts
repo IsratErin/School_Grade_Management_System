@@ -4,9 +4,9 @@ import studentRoute from "./src/routes/studentRoutes.js";
 import adminStudentsRoutes from "./src/routes/adminRoutes/students.js";
 import adminGradesChangeRoutes from "./src/routes/adminRoutes/changeGrades.js";
 import adminGradesViewRoutes from "./src/routes/adminRoutes/viewGrades.js";
-//import outdatedStudentRoute from "./src/routes/outdatedRoutes/gradesByStudentId.js";
 import type { CorsOptions } from "cors";
 import verifyIdToken from "./middleware/authMiddleware.js";
+//import outdatedStudentRoute from "./src/routes/outdatedRoutes/gradesByStudentId.js";
 //import { PrismaClient } from "./src/generated/prisma-client/client.ts";
 
 //const prisma = new PrismaClient();
