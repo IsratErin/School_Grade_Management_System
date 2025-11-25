@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAuth } from 'firebase/auth';
-import Papa from 'papaparse';
-import { z } from 'zod';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+import Papa from "papaparse";
+import { z } from "zod";
+import api from "../api/axios";
 
 interface Student {
   id: number;
@@ -16,7 +17,7 @@ interface Student {
   adress?: string | null;
 }
 
-const years = ['Year 1', 'Year 2', 'Year 3'];
+const years = ["Year 1", "Year 2", "Year 3"];
 
 const studentValidation = z.object({
   id: z.number(),
@@ -24,7 +25,7 @@ const studentValidation = z.object({
   lastName: z.string(),
   email: z.string().email(),
   personNr: z.string().regex(/^\d{6}-\d{4}$/, {
-    message: 'Invalid format, must be DDDDDD-XXXX',
+    message: "Invalid format, must be DDDDDD-XXXX",
   }),
   year: z.number().min(1).max(3),
   phone: z.string().optional(),
@@ -33,19 +34,19 @@ const studentValidation = z.object({
 
 export default function AdminStudentAccounts() {
   const navigate = useNavigate();
-  const [adminName, setAdminName] = useState('Admin');
+  const [adminName, setAdminName] = useState("Admin");
 
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
-      setAdminName(user.displayName || 'Admin');
+      setAdminName(user.displayName || "Admin");
     }
   }, []);
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState('Year 1');
+  const [selectedYear, setSelectedYear] = useState("Year 1");
   const [hoverStudent, setHoverStudent] = useState<Student | null>(null);
   const [isPopupHovered, setIsPopupHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,15 +56,14 @@ export default function AdminStudentAccounts() {
   const rowRef = useRef<HTMLTableRowElement | null>(null);
   const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
 
-  const yearNumber = Number(selectedYear.split(' ')[1]);
+  const yearNumber = Number(selectedYear.split(" ")[1]);
 
   useEffect(() => {
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:5001/admin/students');
-        const data = await res.json();
-        if (res.ok) setStudents(data);
+        const res = await api.get("/admin/students");
+        setStudents(res.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -108,36 +108,29 @@ export default function AdminStudentAccounts() {
         });
 
         if (errors.length > 0) {
-          console.error('CSV Validation Errors:', errors);
+          console.error("CSV Validation Errors:", errors);
           alert(
             `Some rows failed validation:\n` +
-              errors.map((e) => `Row ${e.row}: ${e.error}`).join('\n')
+              errors.map((e) => `Row ${e.row}: ${e.error}`).join("\n")
           );
           return; // stop sending invalid CSV
         }
 
         // Send valid rows to backend
         try {
-          const res = await fetch(
-            'http://localhost:5001/admin/students/import',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(validStudents),
-            }
-          );
-          const data = await res.json();
-          console.log(data);
-          alert(data.message);
-          if (data.count) setStudents((prev) => [...prev, ...validStudents]);
+          const res = await api.post("/admin/students/import", validStudents);
+          console.log(res.data);
+          alert(res.data.message);
+          if (res.data.count)
+            setStudents((prev) => [...prev, ...validStudents]);
         } catch (err) {
           console.error(err);
-          alert('Error importing CSV');
+          alert("Error importing CSV");
         }
       },
       error: (err) => {
-        console.error('CSV parse error:', err);
-        alert('Error parsing CSV file');
+        console.error("CSV parse error:", err);
+        alert("Error parsing CSV file");
       },
     });
   };
@@ -145,25 +138,19 @@ export default function AdminStudentAccounts() {
   const handleSave = async () => {
     if (!hoverStudent) return;
     try {
-      const res = await fetch(
-        `http://localhost:5001/admin/students/${hoverStudent.personNr}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(hoverStudent),
-        }
+      const res = await api.put(
+        `/admin/students/${hoverStudent.personNr}`,
+        hoverStudent
       );
-      if (!res.ok) throw new Error('Failed to update student');
-      const result = await res.json();
-      const updated = result.updatedStudent;
+      const updated = res.data.updatedStudent;
       setStudents((prev) =>
         prev.map((s) => (s.personNr === updated.personNr ? updated : s))
       );
       setIsEditing(false);
-      alert('Student updated successfully!');
+      alert("Student updated successfully!");
     } catch (error) {
       console.error(error);
-      alert('Error updating student.');
+      alert("Error updating student.");
     }
   };
 
@@ -176,22 +163,15 @@ export default function AdminStudentAccounts() {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:5001/admin/students/${hoverStudent.personNr}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!res.ok) throw new Error('Failed to delete student');
-
+      await api.delete(`/admin/students/${hoverStudent.personNr}`);
       setStudents((prev) =>
         prev.filter((s) => s.personNr !== hoverStudent.personNr)
       );
       setHoverStudent(null);
-      alert('Student deleted successfully!');
+      alert("Student deleted successfully!");
     } catch (error) {
       console.error(error);
-      alert('Error deleting student.');
+      alert("Error deleting student.");
     }
   };
 
@@ -217,8 +197,8 @@ export default function AdminStudentAccounts() {
               key={y}
               className={`px-4 py-2 rounded border border-gray-300 transition-colors ${
                 selectedYear === y
-                  ? 'bg-pink-400 text-white font-semibold'
-                  : 'bg-gray-100 hover:bg-gray-200'
+                  ? "bg-pink-400 text-white font-semibold"
+                  : "bg-gray-100 hover:bg-gray-200"
               }`}
               onClick={() => setSelectedYear(y)}
             >
@@ -278,7 +258,7 @@ export default function AdminStudentAccounts() {
 
                   const rect = e.currentTarget.getBoundingClientRect();
                   const tableWidth =
-                    e.currentTarget.closest('table')?.getBoundingClientRect()
+                    e.currentTarget.closest("table")?.getBoundingClientRect()
                       .width || window.innerWidth;
                   const popupWidth = 320; // w-80 ~ 320px
                   // center horizontally relative to row but keep inside table
@@ -304,8 +284,8 @@ export default function AdminStudentAccounts() {
                 </td>
                 <td className="px-6 py-4 text-sm">{s.email}</td>
                 <td className="px-6 py-4 text-sm">{s.personNr}</td>
-                <td className="px-6 py-4 text-sm">{s.phone || '-'}</td>
-                <td className="px-6 py-4 text-sm">{s.adress || '-'}</td>
+                <td className="px-6 py-4 text-sm">{s.phone || "-"}</td>
+                <td className="px-6 py-4 text-sm">{s.adress || "-"}</td>
               </tr>
             ))}
           </tbody>
@@ -340,8 +320,8 @@ export default function AdminStudentAccounts() {
               </p>
               <p className="text-sm">Email: {hoverStudent.email}</p>
               <p className="text-sm">PersonNr: {hoverStudent.personNr}</p>
-              <p className="text-sm">Phone: {hoverStudent.phone || '-'}</p>
-              <p className="text-sm">Address: {hoverStudent.adress || '-'}</p>
+              <p className="text-sm">Phone: {hoverStudent.phone || "-"}</p>
+              <p className="text-sm">Address: {hoverStudent.adress || "-"}</p>
               <div className="flex gap-4 mt-4">
                 <button
                   className="border border-gray-400 px-4 py-1 bg-white rounded-md text-sm hover:bg-gray-100"
@@ -388,14 +368,14 @@ export default function AdminStudentAccounts() {
               />
               <input
                 className="border w-full px-2 text-sm mb-1 rounded"
-                value={hoverStudent.phone || ''}
+                value={hoverStudent.phone || ""}
                 onChange={(e) =>
                   setHoverStudent({ ...hoverStudent, phone: e.target.value })
                 }
               />
               <input
                 className="border w-full px-2 text-sm mb-1 rounded"
-                value={hoverStudent.adress || ''}
+                value={hoverStudent.adress || ""}
                 onChange={(e) =>
                   setHoverStudent({ ...hoverStudent, adress: e.target.value })
                 }

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAuth } from 'firebase/auth';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+import toast from "react-hot-toast";
+import api from "../api/axios";
 
 interface Grade {
   gradeId: number | null; // null = NEW grade
@@ -18,18 +19,18 @@ interface Student {
   year: number;
 }
 
-const years = ['1', '2', '3'];
+const years = ["1", "2", "3"];
 
 export default function AdminRegisterGrades() {
   const navigate = useNavigate();
   const [adminName] = useState(
-    () => getAuth().currentUser?.displayName || 'Admin'
+    () => getAuth().currentUser?.displayName || "Admin"
   );
 
   const [students, setStudents] = useState<Student[]>([]);
   const [courses, setCourses] = useState<string[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [selectedYear, setSelectedYear] = useState('1');
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedYear, setSelectedYear] = useState("1");
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -37,12 +38,10 @@ export default function AdminRegisterGrades() {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const res = await fetch('http://localhost:5001/admin/students');
-        if (!res.ok) throw new Error('Failed to fetch students');
-        const data = await res.json();
-        setStudents(data);
+        const res = await api.get("/admin/students");
+        setStudents(res.data);
       } catch {
-        toast.error('Error loading students!');
+        toast.error("Error loading students!");
       }
     };
     fetchStudents();
@@ -52,13 +51,11 @@ export default function AdminRegisterGrades() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch('http://localhost:5001/admin/grades');
-        if (!res.ok) throw new Error('Failed to fetch courses');
-        const data = await res.json();
-        setCourses(data);
-        setSelectedCourse(data[0] ?? '');
+        const res = await api.get("/admin/grades");
+        setCourses(res.data);
+        setSelectedCourse(res.data[0] ?? "");
       } catch {
-        toast.error('Error loading courses!');
+        toast.error("Error loading courses!");
       }
     };
     fetchCourses();
@@ -70,12 +67,11 @@ export default function AdminRegisterGrades() {
     const fetchGrades = async () => {
       setLoading(true);
       try {
-        const courseParam = selectedCourse.replace(' ', '').toLowerCase();
-        const res = await fetch(
-          `http://localhost:5001/admin/grades/${courseParam}/${selectedYear}`
+        const courseParam = selectedCourse.replace(" ", "").toLowerCase();
+        const res = await api.get(
+          `/admin/grades/${courseParam}/${selectedYear}`
         );
-        if (!res.ok) throw new Error('Failed to fetch grades');
-        const existingGrades = await res.json();
+        const existingGrades = res.data;
 
         // Map grades
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,26 +79,26 @@ export default function AdminRegisterGrades() {
           gradeId: g.gradeId,
           personNr: g.personNr,
           student: g.student,
-          grade: g.grade || '',
-          date: g.date ?? '',
+          grade: g.grade || "",
+          date: g.date ?? "",
         }));
 
         // Add empty rows for students without grades
         const studentsWithGrades = mappedGrades.map((g) => g.personNr);
         const newStudents: Grade[] = students
-          .filter((s) => s.year === parseInt(selectedYear)) 
+          .filter((s) => s.year === parseInt(selectedYear))
           .filter((s) => !studentsWithGrades.includes(s.personNr))
           .map((s) => ({
             gradeId: null,
             student: `${s.firstName} ${s.lastName}`,
             personNr: s.personNr,
-            grade: '',
-            date: '',
+            grade: "",
+            date: "",
           }));
 
         setGrades([...mappedGrades, ...newStudents]);
       } catch {
-        toast.error('Error loading grades!');
+        toast.error("Error loading grades!");
       } finally {
         setLoading(false);
       }
@@ -123,32 +119,23 @@ export default function AdminRegisterGrades() {
   // Save new grade
   const saveNewGrade = async (grade: Grade) => {
     if (!grade.grade) {
-      toast.error('Enter grade first!');
+      toast.error("Enter grade first!");
       return;
     }
 
     try {
-      const [name, level] = selectedCourse.split(' ');
-      const res = await fetch(
-        `http://localhost:5001/admin/grades/${grade.personNr}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name,
-            level,
-            grade: grade.grade,
-            year: parseInt(selectedYear),
-          }),
-        }
-      );
+      const [name, level] = selectedCourse.split(" ");
+      await api.post(`/admin/grades/${grade.personNr}`, {
+        name,
+        level,
+        grade: grade.grade,
+        year: parseInt(selectedYear),
+      });
 
-      if (!res.ok) throw new Error();
-
-      toast.success('Grade added!');
-      window.location.reload(); 
+      toast.success("Grade added!");
+      window.location.reload();
     } catch {
-      toast.error('Error adding grade!');
+      toast.error("Error adding grade!");
     }
   };
 
@@ -158,7 +145,7 @@ export default function AdminRegisterGrades() {
         <h1 className="text-3xl font-bold">Admin</h1>
         <button
           className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 rounded-md"
-          onClick={() => navigate('/admin-dashboard')}
+          onClick={() => navigate("/admin-dashboard")}
         >
           ← {adminName}
         </button>
@@ -171,7 +158,7 @@ export default function AdminRegisterGrades() {
             <button
               key={y}
               className={`px-4 py-1 rounded border ${
-                selectedYear === y ? 'bg-pink-400 text-white' : 'bg-gray-100'
+                selectedYear === y ? "bg-pink-400 text-white" : "bg-gray-100"
               }`}
               onClick={() => setSelectedYear(y)}
             >
@@ -200,7 +187,6 @@ export default function AdminRegisterGrades() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-
         <table className="min-w-full border border-gray-300 rounded-lg mb-4">
           <thead className="bg-gray-100">
             <tr>
@@ -222,7 +208,7 @@ export default function AdminRegisterGrades() {
                     className="border px-2 py-1 w-16 text-center"
                   />
                 </td>
-                <td className="px-6 py-2">{g.date || '-'}</td>
+                <td className="px-6 py-2">{g.date || "-"}</td>
                 <td className="px-6 py-2">
                   {g.gradeId === null && (
                     <button
