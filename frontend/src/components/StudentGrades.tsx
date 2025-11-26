@@ -52,9 +52,8 @@ export default function StudentGrades() {
           course: g.course ?? g.subject, // optional normalization
         })
       );
-
       const uniqueSubjects = Array.from(
-        new Set(subjectwithGrades.map((g) => g.subject || g.course))
+        new Set(subjectwithGrades.map((g) => g.course || g.subject))
       ).filter((s): s is string => Boolean(s));
 
       setSubjects(uniqueSubjects);
@@ -138,7 +137,7 @@ export default function StudentGrades() {
               {selectedYear === "All" && (
                 <th className="border px-4 py-2">Year</th>
               )}
-              <th className="border px-4 py-2">Level</th>
+              {/* <th className="border px-4 py-2">Level</th> */}
             </tr>
           </thead>
           <tbody>
@@ -154,12 +153,12 @@ export default function StudentGrades() {
             ) : (
               filteredGrades.map((g, i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="border px-4 py-2">{g.subject || g.course}</td>
+                  <td className="border px-4 py-2">{g.course || g.subject}</td>
                   <td className="border px-4 py-2">{g.grade}</td>
                   {selectedYear === "All" && (
                     <td className="border px-4 py-2">{g.year || "-"}</td>
                   )}
-                  <td className="border px-4 py-2">{g.level || "-"}</td>
+                  {/* <td className="border px-4 py-2">{g.level || "-"}</td> */}
                 </tr>
               ))
             )}

@@ -75,3 +75,11 @@ export const subjectSchema = z.object({
   createdAt: dateSchema,
   updatedAt: dateSchema,
 });
+
+export const getGradeSchema = z.object({
+  grade: gradeScaleSchema,
+  year: yearSchema,
+  subject: z.string(),
+  level: z.string().toUpperCase(),
+  course: z.string(),
+});

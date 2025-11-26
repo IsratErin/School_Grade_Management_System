@@ -133,7 +133,7 @@ export default function AdminRegisterGrades() {
       });
 
       toast.success("Grade added!");
-      window.location.reload();
+      //window.location.reload();
     } catch {
       toast.error("Error adding grade!");
     }
@@ -148,24 +148,15 @@ export default function AdminRegisterGrades() {
 
     try {
       const [name, level] = selectedCourse.split(" ");
-      const res = await fetch(
-        `http://localhost:5001/admin/grades/${grade.gradeId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            level,
-            grade: grade.grade,
-            year: parseInt(selectedYear),
-          }),
-        }
-      );
-
-      if (!res.ok) throw new Error();
+      await api.put(`/admin/grades/${grade.gradeId}`, {
+        name,
+        level,
+        grade: grade.grade,
+        year: parseInt(selectedYear),
+      });
 
       toast.success("Grade updated!");
-      window.location.reload();
+      //window.location.reload();
     } catch {
       toast.error("Error updating grade!");
     }

@@ -72,6 +72,7 @@ router.get("/:course/:year", async (req, res) => {
     const students = await prisma.student.findMany({
       where: { id: { in: studentIds }, year: validatedParams.data.year },
       select: { firstName: true, lastName: true, id: true, personNr: true },
+      orderBy: { lastName: "asc" },
     });
     const data = students.map((s) => {
       const g = grades.find((grade) => grade.studentId === s.id);

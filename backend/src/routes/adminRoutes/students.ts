@@ -14,7 +14,9 @@ const router = Router();
 //get all students
 router.get("/", async (req, res) => {
   try {
-    const students = await prisma.student.findMany();
+    const students = await prisma.student.findMany({
+      orderBy: { lastName: "asc" },
+    });
     if (!students) {
       return res.json({ message: "No students registered." });
     }

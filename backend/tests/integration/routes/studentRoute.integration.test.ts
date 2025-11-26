@@ -3,6 +3,7 @@ import supertest from "supertest";
 import express from "express";
 import studentRoute from "../../../src/routes/studentRoutes.js";
 import { PrismaClient } from "../../../src/generated/prisma-client/client.js";
+import { checkForDuplicateGrades } from "../../../src/routes/studentRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -93,4 +94,52 @@ describe("Student Route Integration Tests", () => {
     expect(res.status).toBe(404);
     expect(res.body.message).toBe("Student not found");
   });
+});
+
+test("Throw error if a student have duplicate grades", () => {
+  expect(() =>
+    checkForDuplicateGrades(
+      [
+        {
+          id: 280,
+          studentId: 12,
+          grade: "D",
+          year: 1,
+          subjectId: 22,
+          createdAt: new Date("2025-11-21T23:57:02.934Z"),
+          updatedAt: new Date("2025-11-21T23:57:02.934Z"),
+        },
+        {
+          id: 281,
+          studentId: 12,
+          grade: null,
+          year: 2,
+          subjectId: 23,
+          createdAt: new Date("2025-11-21T23:57:02.991Z"),
+          updatedAt: new Date("2025-11-21T23:57:02.991Z"),
+        },
+        {
+          id: 282,
+          studentId: 12,
+          grade: null,
+          year: 3,
+          subjectId: 24,
+          createdAt: new Date("2025-11-21T23:57:03.044Z"),
+          updatedAt: new Date("2025-11-21T23:57:03.044Z"),
+        },
+        {
+          id: 282,
+          studentId: 12,
+          grade: null,
+          year: 3,
+          subjectId: 24,
+          createdAt: new Date("2025-11-21T23:57:03.044Z"),
+          updatedAt: new Date("2025-11-21T23:57:03.044Z"),
+        },
+      ],
+      "Laura Croft"
+    )
+  ).toThrowError(
+    "Duplicate grade detected for student Laura Croft, subjectId=24"
+  );
 });

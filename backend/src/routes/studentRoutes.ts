@@ -2,10 +2,26 @@ import "dotenv/config";
 import { Router } from "express";
 import { PrismaClient } from "../generated/prisma-client/client.js";
 import { z } from "zod";
-import { studentSchema } from "../validators/valdation.js";
+import { gradeSchema, studentSchema } from "../validators/valdation.js";
 
 const prisma = new PrismaClient();
 const router = Router();
+
+export const checkForDuplicateGrades = (
+  grades: z.infer<typeof gradeSchema>[],
+  student: string
+) => {
+  const checked = new Set<string>();
+  for (const g of grades) {
+    const key = `${g.studentId}:${g.subjectId}`;
+    if (checked.has(key)) {
+      throw new Error(
+        `Duplicate grade detected for student ${student}, subjectId=${g.subjectId}`
+      );
+    }
+    checked.add(key);
+  }
+};
 
 //get all grades by email
 router.get("/:email", async (req, res) => {
@@ -31,24 +47,37 @@ router.get("/:email", async (req, res) => {
       });
     }
 
-    const grades = await prisma.grade.findMany({
+    const responseGrades = await prisma.grade.findMany({
       where: { studentId: validatedStudent.data.id },
     });
-    if (!grades) {
-      return res.json({ message: "No grades or corses registered yet." });
+    const validatedGrades = z.array(gradeSchema).safeParse(responseGrades);
+    if (!validatedGrades.success) {
+      return res.status(500).json({
+        message: "Invalid response from server.",
+        error: validatedGrades.error,
+      });
     }
-    const subjectIds = grades.map((s) => s.subjectId);
+
+    checkForDuplicateGrades(
+      validatedGrades.data,
+      `${validatedStudent.data.firstName} ${validatedStudent.data.lastName}`
+    );
+
+    const subjectIds = validatedGrades.data.map((s) => s.subjectId);
     const subjects = await prisma.subject.findMany({
       where: { id: { in: subjectIds } },
-      select: { id: true, name: true, level: true, updatedAt: true },
+      select: { id: true, name: true, level: true },
     });
-    const data = grades.map((g) => ({
-      grade: g.grade,
-      year: g.year,
-      subject: subjects.find((s) => s.id === g.subjectId)?.name,
-      level: subjects.find((s) => s.id === g.subjectId)?.level,
-      timestamp: subjects.find((s) => s.id === g.id)?.updatedAt,
-    }));
+
+    const data = validatedGrades.data
+      .map((g) => ({
+        grade: g.grade,
+        year: g.year,
+        subject: subjects.find((s) => s.id === g.subjectId)?.name,
+        level: subjects.find((s) => s.id === g.subjectId)?.level,
+        course: `${subjects.find((s) => s.id === g.subjectId)?.name} ${subjects.find((s) => s.id === g.subjectId)?.level}`,
+      }))
+      .sort((a, b) => a.course.localeCompare(b.course));
 
     res.status(200).json({ student: validatedStudent.data, grades: data });
   } catch (error) {
