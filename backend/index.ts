@@ -11,7 +11,10 @@ import verifyIdToken from "./middleware/authMiddleware.js";
 
 //const prisma = new PrismaClient();
 const corsOptions: CorsOptions = {
-  origin: ["http://localhost:5173"], //works for default react localhosting
+  origin: [
+    "http://localhost:5173",
+    "https://school-grade-management-system-v542.vercel.app",
+  ], //works for default react localhosting
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
