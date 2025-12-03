@@ -210,7 +210,7 @@ export default function AdminLogin() {
         onClick={() => navigate("/")}
         className="absolute bottom-20 right-40 text-m font-bold text-white hover:text-black border-none bg-pink-400 p-2 rounded-md"
       >
-        Student Login
+        Student
       </button>
     </div>
   );
