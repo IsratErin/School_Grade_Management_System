@@ -17,16 +17,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Login />} />
 
-          <Route
-            path="/admin-login"
-            element={
-              <AdminLogin
-                onStudentLinkClick={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            }
-          />
+          <Route path="/admin-login" element={<AdminLogin />} />
 
           <Route
             path={`/student-grades`}
@@ -37,44 +28,14 @@ export default function App() {
             }
           />
 
-          <Route
-            path="/admin-dashboard"
-            element={
-              <AdminDashboard
-                onRegisterGrades={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-                onAdminAccounts={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-                onLogout={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            }
-          />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
           <Route
             path="/admin-register-grades"
-            element={
-              <AdminRegisterGrades
-                onBack={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            }
+            element={<AdminRegisterGrades />}
           />
 
-          <Route
-            path="/admin-accounts"
-            element={
-              <AdminStudentAccounts
-                onBack={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            }
-          />
+          <Route path="/admin-accounts" element={<AdminStudentAccounts />} />
         </Routes>
       </Router>
     </div>
