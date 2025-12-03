@@ -211,11 +211,11 @@ export default function AdminRegisterGrades() {
         <p>Loading...</p>
       ) : (
         <table className="min-w-full border border-gray-300 rounded-lg mb-4 bg-white">
-          <thead className="bg-white">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3">Student</th>
-              <th className="px-6 py-3">Grade</th>
-              <th className="px-6 py-3">Date</th>
+              <th className="px-6 py-3 text-left">Student</th>
+              <th className="px-6 py-3 text-left">Grade</th>
+              <th className="px-6 py-3 text-left">Date</th>
               <th></th>
             </tr>
           </thead>
