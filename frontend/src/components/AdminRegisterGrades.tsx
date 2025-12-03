@@ -163,7 +163,7 @@ export default function AdminRegisterGrades() {
   };
 
   return (
-    <div className="p-10 max-w-5xl mx-auto font-sans">
+    <div className="p-10 max-w-5xl mx-auto  bg-gray-200 font-sans">
       <div className="flex justify-between mb-6">
         <h1 className="text-3xl font-bold">Admin</h1>
         <button
