@@ -9,7 +9,7 @@ import AdminStudentAccounts from "./components/AdminStudentAccounts";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
-  const adminName = "Michiel vd Gragt";
+  // const adminName = "Michiel vd Gragt";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,9 +21,6 @@ export default function App() {
             path="/admin-login"
             element={
               <AdminLogin
-                onLogin={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
                 onStudentLinkClick={function (): void {
                   throw new Error("Function not implemented.");
                 }}
@@ -44,7 +41,6 @@ export default function App() {
             path="/admin-dashboard"
             element={
               <AdminDashboard
-                adminName={adminName}
                 onRegisterGrades={function (): void {
                   throw new Error("Function not implemented.");
                 }}
@@ -62,7 +58,6 @@ export default function App() {
             path="/admin-register-grades"
             element={
               <AdminRegisterGrades
-                adminName={adminName}
                 onBack={function (): void {
                   throw new Error("Function not implemented.");
                 }}
@@ -74,7 +69,6 @@ export default function App() {
             path="/admin-accounts"
             element={
               <AdminStudentAccounts
-                adminName={adminName}
                 onBack={function (): void {
                   throw new Error("Function not implemented.");
                 }}
