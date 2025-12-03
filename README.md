@@ -1,6 +1,6 @@
-# 🏠 School System App
+# 🏠 Grade Management System App
 
-A full-stack web application for managing student accounts, importing student data via CSV, and registering grades. Only **admins** can access the system. Built with **React**, **TypeScript**, **Tailwind CSS** on the frontend and **Node.js**, **Express**, **Prisma**, **PostgreSQL**, and **Firebase Authentication** on the backend.
+A full-stack web application where sudents can see their grades from different high school years, admins can manage student accounts by importing student data via CSV, registering grades or updating grades. Only **admins** can access the admin routes. Built with **React**, **TypeScript**, **Tailwind CSS** on the frontend and **Node.js**, **Express**, **Prisma**, **PostgreSQL**, and **Firebase Authentication** on the backend. App is delopyed on: https://school-grade-management-system-v542.vercel.app/
 
 ---
 
@@ -14,6 +14,12 @@ https://github.com/user-attachments/assets/ea63c85e-25fe-4c68-a8f0-d5b610b8c082
 ---
 
 ## Features
+
+- **Student Accounts**
+
+  - Students can login with their credintials.
+  - Can see their grades for different levels.
+  - Can filter the grades category by subjects.
 
 - **Admin Student Accounts**
 
@@ -34,6 +40,7 @@ https://github.com/user-attachments/assets/ea63c85e-25fe-4c68-a8f0-d5b610b8c082
   - Add, update, or delete students and grades.
   - Access restricted to authenticated **admin users**.
   - Data validation using Zod.
+  - User authencation and authorization through firebase token
 
 ---
 
@@ -88,7 +95,7 @@ FIREBASE_PRIVATE_KEY="your-private-key"
 
    npm run dev
 
-3. Access app at http://localhost:5173
+3. Access app at http://localhost:5173 (locally)
 
 4. Admin users must log in via Firebase Authentication to access the dashboard.
 
