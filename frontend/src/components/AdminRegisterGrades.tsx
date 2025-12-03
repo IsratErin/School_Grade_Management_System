@@ -163,7 +163,7 @@ export default function AdminRegisterGrades() {
   };
 
   return (
-    <div className="p-10 max-w-5xl mx-auto  bg-gray-200 font-sans">
+    <div className="p-10 max-w-5xl mx-auto bg-gray-200 font-sans">
       <div className="flex justify-between mb-6">
         <h1 className="text-3xl font-bold">Admin</h1>
         <button
@@ -210,8 +210,8 @@ export default function AdminRegisterGrades() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <table className="min-w-full border border-gray-300 rounded-lg mb-4">
-          <thead className="bg-gray-100">
+        <table className="min-w-full border border-gray-300 rounded-lg mb-4 bg-white">
+          <thead className="bg-white">
             <tr>
               <th className="px-6 py-3">Student</th>
               <th className="px-6 py-3">Grade</th>
@@ -219,7 +219,7 @@ export default function AdminRegisterGrades() {
               <th></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white">
             {grades.map((g, i) => (
               <tr key={i}>
                 <td className="px-6 py-2">{g.student}</td>
