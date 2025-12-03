@@ -5,11 +5,9 @@ A full-stack web application for managing student accounts, importing student da
 ---
 
 ## 👤 Demo
-<video src="https://github.com/IsratErin/School_Grade_Management_System/releases/download/demo/Grade_Management_System.mp4"
-       controls
-       width="720">
-  A demo of the application using user data from seeded example data in database.
-</video>
+
+https://github.com/user-attachments/assets/ea63c85e-25fe-4c68-a8f0-d5b610b8c082
+
 
 
 
