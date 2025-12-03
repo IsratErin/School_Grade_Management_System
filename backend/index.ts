@@ -27,6 +27,14 @@ app.use("/admin/grades", verifyIdToken, adminGradesChangeRoutes);
 app.use("/admin/grades", verifyIdToken, adminGradesViewRoutes);
 //app.use("/student", outdatedStudentRoute);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.get("/", (req, res) => {
+  res.send("Welcome to the Grade System API!");
 });
+
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running http://localhost:${PORT}`);
+  });
+}
+
+export default app;
