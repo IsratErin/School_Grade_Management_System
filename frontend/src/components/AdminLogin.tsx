@@ -86,7 +86,7 @@ export default function AdminLogin() {
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-6">
-      <div className="bg-pink-100 p-10 rounded-lg shadow-xl w-full max-w-sm">
+      <div className="bg-gray-100 p-10 rounded-lg shadow-xl w-full max-w-sm">
         <h2 className="text-3xl font-bold mb-8 text-center">👤 Admin Login</h2>
 
         <form

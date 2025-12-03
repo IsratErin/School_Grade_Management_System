@@ -81,7 +81,7 @@ export default function StudentGrades() {
   }, [user?.email]); // re-fetch when user’s email becomes available
 
   return (
-    <div className="p-20 bg-pink-200 min-h-screen max-w-4xl mx-auto">
+    <div className="p-20 bg-gray-200 min-h-screen max-w-4xl mx-auto">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">{user?.displayName}'s Grades</h1>
         <button

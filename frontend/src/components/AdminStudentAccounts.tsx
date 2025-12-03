@@ -178,7 +178,7 @@ export default function AdminStudentAccounts() {
   if (loading) return <div className="p-10">Loading students...</div>;
 
   return (
-    <div className="p-20 font-sans max-w-6xl mx-auto relative bg-pink-200 min-h-screen">
+    <div className="p-20 font-sans max-w-6xl mx-auto relative bg-gray-200 min-h-screen">
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">Admin</h1>
         <button
@@ -398,9 +398,6 @@ export default function AdminStudentAccounts() {
           )}
         </div>
       )}
-      <div className="absolute top-20 right-110 bg-red-100 p-2 border border-red-300 rounded shadow-md text-xs text-center translate-x-1/2">
-        Hover over a row and see pop up window
-      </div>
     </div>
   );
 }

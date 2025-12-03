@@ -12,7 +12,7 @@ export default function App() {
   const adminName = "Michiel vd Gragt";
 
   return (
-    <div className="min-h-screen bg-pink-50">
+    <div className="min-h-screen bg-gray-50">
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
